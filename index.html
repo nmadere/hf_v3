@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HFMG Scheduling & Routing — AA Installation LLC</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eef1f5;min-height:100vh;color:#1e293b}
+:root{--aa-navy:#0a1628;--aa-blue:#1d4ed8;--aa-red:#dc2626;--aa-amber:#f59e0b;--aa-green:#059669;--aa-slate:#334155;--aa-light:#f8fafc;--aa-border:#d1d5db;--aa-bg:#eef1f5}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:#f1f5f9}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}
+.drag-over{outline:2px dashed var(--aa-blue)!important;background:rgba(29,78,216,0.04)!important}
+.site-card{transition:all 0.15s;cursor:grab;user-select:none}.site-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08);transform:translateY(-1px)}.site-card:active{cursor:grabbing;opacity:0.6}
+.tab-btn{padding:11px 20px;border:none;background:none;font-size:13px;font-weight:500;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap}
+.tab-btn:hover{color:#fff}.tab-btn.active{color:#fff;font-weight:700;border-bottom-color:var(--aa-amber)}
+.btn{border:none;border-radius:6px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(0.9)}.btn-primary{background:var(--aa-blue);color:#fff}.btn-slate{background:#e2e8f0;color:#475569}
+.btn-green{background:var(--aa-green);color:#fff}.btn-amber{background:var(--aa-amber);color:#fff}.btn-red{background:var(--aa-red);color:#fff}
+.btn-sm{padding:5px 10px;font-size:11px}.btn-outline{background:transparent;border:1px solid var(--aa-border);color:#475569}
+.btn-outline:hover{background:#f1f5f9}
+select,input[type=text],input[type=number],input[type=date]{font-family:inherit;font-size:12px;padding:7px 11px;border:1px solid var(--aa-border);border-radius:6px;outline:none;background:#fff;transition:border 0.15s}
+select:focus,input:focus{border-color:var(--aa-blue)}
+.kpi{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;min-width:155px;transition:box-shadow 0.15s}.kpi:hover{box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.leaflet-container{border-radius:8px;z-index:1}
+.crew-marker{border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.5),0 0 0 1px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;text-shadow:0 1px 2px rgba(0,0,0,0.6)}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;gap:4px}
+.badge-green{background:#dcfce7;color:#166534}.badge-amber{background:#fef3c7;color:#92400e}.badge-red{background:#fee2e2;color:#991b1b}.badge-blue{background:#dbeafe;color:#1e40af}.badge-gray{background:#f1f5f9;color:#64748b}
+.modal-overlay{position:fixed;inset:0;background:rgba(10,22,40,0.5);z-index:2000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal{background:#fff;border-radius:12px;max-width:600px;width:95%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal-header{padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+.modal-body{padding:20px}.modal-footer{padding:14px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:8px}
+.form-group{margin-bottom:14px}.form-label{display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.03em}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toggle{position:relative;width:40px;height:22px;border-radius:11px;background:#cbd5e1;cursor:pointer;transition:background 0.2s}
+.toggle.on{background:var(--aa-blue)}.toggle-knob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:9px;background:#fff;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.toggle.on .toggle-knob{left:20px}
+.progress-bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}.progress-fill{height:100%;border-radius:4px;transition:width 0.3s}
+.flag-btn{width:24px;height:24px;border-radius:4px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;transition:all 0.15s}
+.flag-btn:hover{background:#f1f5f9}
+.note-input{width:100%;padding:6px 8px;border:1px solid #e2e8f0;border-radius:4px;font-size:11px;font-family:inherit;resize:vertical;min-height:32px}
+@media print{.no-print{display:none!important}.print-only{display:block!important}}
+.print-only{display:none}
+.route-step{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-radius:6px;border:1px solid #e2e8f0;font-size:11px;transition:all 0.15s}
+.route-step:hover{box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;color:#fff;flex-shrink:0}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useMemo,useCallback,useEffect,useRef}=React;
+const INIT_SITES=[
+{id:1,name:"First Flight Crew Quarters",region:"North",address:"51 Bristow Way",qty:0,poc:"Robert Spivey",lat:28.411,lng:-80.764,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:2,name:"First Flight Hanger",region:"North",address:"55 Bristow Way",qty:0,poc:"Robert Spivey",lat:28.412,lng:-80.765,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:3,name:"HFMG - MOSM-Ortho / Pain",region:"HRMC",address:"205 E Nasa Blvd.",qty:6,poc:"Christa Guy",lat:28.0763,lng:-80.6184,scottfold:0,eScottPro:6,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:4,name:"HFMG Primary Care",region:"South",address:"220 N. Sykes Creek Pkwy., Suite 300",qty:50,poc:"Nicole Block",lat:28.1194,lng:-80.6352,scottfold:0,eScottPro:37,mScottPro:0,slimroll:0,quad:0,sideBySide:13,vertical:0,spindles:0,notes:""},
+{id:5,name:"PT / Hospice / 3rd party tenant",region:"North",address:"220 S Courtenay Pkwy.",qty:8,poc:"Paulette Swanson",lat:28.0874,lng:-80.6225,scottfold:0,eScottPro:8,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:6,name:"HFMG",region:"North",address:"325 S. Courtenay Pkwy 101-107",qty:2,poc:"Stephanie Scott / Dan Norfolk / Regina Frederick",lat:28.0856,lng:-80.6238,scottfold:0,eScottPro:2,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:7,name:"William Childs Hospice",region:"PBH",address:"381 Medplex Pkwy. NE",qty:0,poc:"Paula Ludwig",lat:28.0122,lng:-80.6228,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"Up the Street"},
+{id:8,name:"Melbourne Pro-Health/Foundation/Childcare",region:"HRMC",address:"611 E. Sheridan Rd.",qty:64,poc:"Darren Hill / Paulette Swanson",lat:28.0889,lng:-80.6068,scottfold:0,eScottPro:40,mScottPro:0,slimroll:0,quad:0,sideBySide:13,vertical:11,spindles:0,notes:""},
+{id:9,name:"CCH MOB",region:"CCH",address:"699 W Cocoa Beach Cswy.",qty:178,poc:"Nancy Bosio Pickett",lat:28.3473,lng:-80.7297,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"Buildings Connected"},
+{id:10,name:"Cape Canaveral Hospital",region:"CCH",address:"701 W Cocoa Beach Cswy.",qty:290,poc:"Nancy Bosio Pickett",lat:28.3478,lng:-80.7302,scottfold:16,eScottPro:271,mScottPro:4,slimroll:0,quad:62,sideBySide:103,vertical:11,spindles:22,notes:"Buildings Connected"},
+{id:11,name:"East Modular Building",region:"PBH",address:"730 Malabar Rd.",qty:14,poc:"Stephanie Scott / Jeanne Fiedor / Karen Montalavo / Samantha Baez / Christa Guy",lat:28.0144,lng:-80.6133,scottfold:0,eScottPro:0,mScottPro:14,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"Up the Street"},
+{id:12,name:"HFMG Cancer Center",region:"HRMC",address:"1130 Hickory St. Bldg B",qty:129,poc:"Robert Crosby / Mary Garcia / Stephanie Scott / Joleen Sorensen",lat:28.0951,lng:-80.612,scottfold:0,eScottPro:31,mScottPro:37,slimroll:37,quad:20,sideBySide:2,vertical:2,spindles:0,notes:""},
+{id:13,name:"HF Hospice/Bright Star/DME",region:"South",address:"1131 W. New Haven",qty:10,poc:"Paula Ludwig / Erika Barnes",lat:28.0775,lng:-80.633,scottfold:0,eScottPro:8,mScottPro:0,slimroll:2,quad:0,sideBySide:0,vertical:0,spindles:12,notes:""},
+{id:14,name:"HFMG Indialantic-Family Practice",region:"South",address:"1220 Hwy A1A",qty:5,poc:"Stephanie Scott / Jeanne Fiedor",lat:28.0906,lng:-80.566,scottfold:0,eScottPro:5,mScottPro:0,slimroll:0,quad:5,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:15,name:"HFMG Gateway",region:"Gateway",address:"1223 Gateway Dr.",qty:186,poc:"Janis Provoncha / Cindy Reese / Alicia Stellato / Shannon Cole / Karen Montalvo",lat:28.0768,lng:-80.6619,scottfold:1,eScottPro:95,mScottPro:0,slimroll:0,quad:89,sideBySide:1,vertical:0,spindles:0,notes:""},
+{id:16,name:"HFMG EP Drs Fulton & Bredikis",region:"HRMC",address:"1251 Hickory St.",qty:19,poc:"Bridget Cunningham",lat:28.0958,lng:-80.6112,scottfold:0,eScottPro:14,mScottPro:0,slimroll:0,quad:0,sideBySide:5,vertical:0,spindles:5,notes:""},
+{id:17,name:"HFMG Oncology",region:"South",address:"1264 Malabar Rd. SE",qty:9,poc:"Stephanie Scott / Robert Crosby",lat:28.0134,lng:-80.6108,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:2,vertical:3,spindles:0,notes:"3 Minutes Away"},
+{id:18,name:"Sleep Center",region:"HRMC",address:"1301 Hickory St",qty:8,poc:"Jessica Lutz / Nikkita Issah",lat:28.0963,lng:-80.6107,scottfold:0,eScottPro:5,mScottPro:0,slimroll:0,quad:0,sideBySide:3,vertical:0,spindles:0,notes:""},
+{id:19,name:"Holmes Regional Medical Center",region:"HRMC",address:"1350 Hickory St.",qty:1898,poc:"Mona Simon",lat:28.0975,lng:-80.6098,scottfold:0,eScottPro:1291,mScottPro:19,slimroll:0,quad:112,sideBySide:453,vertical:23,spindles:161,notes:""},
+{id:20,name:"CEP Bldg (1317 Oak St)",region:"HRMC",address:"1317 Oak St",qty:0,poc:"JP Labarge",lat:28.096,lng:-80.6091,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"COUNTS IN ROW 17"},
+{id:21,name:"First Flight / Airport Hangar",region:"North",address:"1377 General Aviation Dr.",qty:6,poc:"Robert Spivey",lat:28.1021,lng:-80.645,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:2,vertical:0,spindles:0,notes:""},
+{id:22,name:"Palm Bay POB",region:"PBH",address:"1421 Malabar Rd.",qty:61,poc:"Jaycee Harmon",lat:28.0148,lng:-80.6054,scottfold:0,eScottPro:50,mScottPro:0,slimroll:0,quad:0,sideBySide:11,vertical:0,spindles:0,notes:"Same Parking Lot"},
+{id:23,name:"Palm Bay Hospital",region:"PBH",address:"1425 Malabar Rd.",qty:222,poc:"Jaycee Harmon",lat:28.0151,lng:-80.6048,scottfold:0,eScottPro:77,mScottPro:0,slimroll:0,quad:32,sideBySide:113,vertical:0,spindles:1,notes:"Same Parking Lot"},
+{id:24,name:"HF Facilities",region:"South",address:"1575 W Nasa Blvd.",qty:9,poc:"Timothy Schultz",lat:28.0716,lng:-80.6414,scottfold:0,eScottPro:6,mScottPro:0,slimroll:0,quad:0,sideBySide:3,vertical:0,spindles:0,notes:""},
+{id:25,name:"HFMG Primary Care/Urgent Care",region:"South",address:"1810 Eldron Blvd",qty:50,poc:"Stephanie Scott / Theresa Ward / Jeanne Fiedor",lat:28.0508,lng:-80.5964,scottfold:0,eScottPro:41,mScottPro:0,slimroll:0,quad:0,sideBySide:9,vertical:0,spindles:0,notes:""},
+{id:26,name:"HFMG (1846 US Hwy 1)",region:"South",address:"1846 US Hwy 1",qty:57,poc:"Theresa Diamantis",lat:28.0782,lng:-80.6225,scottfold:0,eScottPro:47,mScottPro:0,slimroll:0,quad:0,sideBySide:10,vertical:0,spindles:0,notes:"GP Enmotion + GP Compact TP"},
+{id:27,name:"HFMG Royal Oaks - Titusville",region:"South",address:"1855 Knox McRae Drive",qty:12,poc:"Stephanie Scott / Debbie Pierson",lat:28.5748,lng:-80.8208,scottfold:0,eScottPro:0,mScottPro:7,slimroll:0,quad:0,sideBySide:5,vertical:0,spindles:0,notes:""},
+{id:28,name:"Crane Creek - ASC / HFMG",region:"South",address:"2222 S Harbour City Blvd",qty:92,poc:"Janenne Smith / Rachel Lewis / Ally McCain",lat:28.0667,lng:-80.6185,scottfold:0,eScottPro:82,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:10,spindles:41,notes:""},
+{id:29,name:"HFMG (Vidina Dr. Bldg 2)",region:"VH",address:"2325 Vidina Dr. Bldg 2",qty:40,poc:"Eileen Gebbia",lat:28.2407,lng:-80.726,scottfold:22,eScottPro:8,mScottPro:2,slimroll:0,quad:0,sideBySide:8,vertical:0,spindles:0,notes:"Across the street"},
+{id:30,name:"HFMG (Medico Lane)",region:"VH",address:"2329 Medico Lane",qty:38,poc:"Janis Provoncha",lat:28.2413,lng:-80.727,scottfold:0,eScottPro:0,mScottPro:14,slimroll:1,quad:0,sideBySide:4,vertical:0,spindles:0,notes:"Across the street"},
+{id:31,name:"HF Business Center, Building A",region:"North",address:"3300 Fiske Blvd.",qty:72,poc:"Rosalind Dade",lat:28.1205,lng:-80.639,scottfold:0,eScottPro:31,mScottPro:0,slimroll:1,quad:0,sideBySide:40,vertical:0,spindles:0,notes:""},
+{id:32,name:"HFMG Bayside Bldg, Suite 110",region:"South",address:"3425 Bayside Lakes Blvd. SE",qty:7,poc:"Cindy Reese",lat:27.9855,lng:-80.5926,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:3,vertical:0,spindles:0,notes:""},
+{id:33,name:"HF HR Operations (3442)",region:"South",address:"3442 N Harbor City Blvd.",qty:0,poc:"Amber Wilhelm",lat:28.0665,lng:-80.619,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"with 3470"},
+{id:34,name:"HF Center for Learning (Rivercrest)/HR",region:"South",address:"3470 N Harbor City Blvd.",qty:33,poc:"Amber Wilhelm",lat:28.067,lng:-80.6192,scottfold:0,eScottPro:15,mScottPro:0,slimroll:0,quad:0,sideBySide:18,vertical:0,spindles:0,notes:""},
+{id:35,name:"HF HR Operations (3506)",region:"South",address:"3506 N Harbor City Blvd.",qty:0,poc:"Amber Wilhelm",lat:28.0675,lng:-80.6195,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"with 3470"},
+{id:36,name:"HF Homecare & Private Duty",region:"South",address:"3566 N Harbor City Blvd. (3566-3594)",qty:6,poc:"Nikki Evans",lat:28.068,lng:-80.6198,scottfold:0,eScottPro:6,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:37,name:"HFMG Aging Building",region:"South",address:"3661 S Babcock St.",qty:2,poc:"Ally Beasy / Joyce Kennedy / Sandra Stauffer",lat:28.0588,lng:-80.6138,scottfold:0,eScottPro:2,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:2,notes:"Moving from facility 2026"},
+{id:38,name:"Surgery Center",region:"South",address:"5191 Babcock St. NE",qty:28,poc:"?",lat:28.0192,lng:-80.6087,scottfold:5,eScottPro:17,mScottPro:0,slimroll:0,quad:0,sideBySide:6,vertical:0,spindles:0,notes:""},
+{id:39,name:"PB Rehab",region:"South",address:"5200 Babcock St. NE Suite 109",qty:5,poc:"Jessica Lutz / Paulette Swanson",lat:28.0188,lng:-80.6083,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:1,vertical:0,spindles:0,notes:""},
+{id:40,name:"HF Corporate Bldg",region:"North",address:"6450 Hwy 1",qty:24,poc:"",lat:28.1935,lng:-80.671,scottfold:0,eScottPro:3,mScottPro:0,slimroll:0,quad:0,sideBySide:21,vertical:0,spindles:21,notes:""},
+{id:41,name:"HFMG (6525 Third St.)",region:"North",address:"6525 Third St. Suite 302/303",qty:2,poc:"Anne-Marie Reynolds",lat:28.198,lng:-80.6718,scottfold:0,eScottPro:1,mScottPro:0,slimroll:0,quad:0,sideBySide:1,vertical:0,spindles:1,notes:""},
+{id:42,name:"HFMG ICP",region:"North",address:"7000 Spyglass Ct.",qty:10,poc:"Allie Beasy",lat:28.2235,lng:-80.6915,scottfold:0,eScottPro:0,mScottPro:0,slimroll:10,quad:0,sideBySide:0,vertical:0,spindles:2,notes:""},
+{id:43,name:"HFMG Physicians Viera",region:"North",address:"7125 Murrell Rd.",qty:139,poc:"Kelli Romay / LuAnne Regan / Lori Lynn Moore / Stephanie Scott / Jeanne Fiedor",lat:28.2454,lng:-80.7178,scottfold:0,eScottPro:93,mScottPro:13,slimroll:0,quad:0,sideBySide:9,vertical:5,spindles:12,notes:""},
+{id:44,name:"HF Distribution Ctr, Suite 103",region:"North",address:"7195 Waelti Dr.",qty:5,poc:"Brian Dilonardo",lat:28.251,lng:-80.72,scottfold:0,eScottPro:5,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:3,notes:""},
+{id:45,name:"Viera Pro Health",region:"VH",address:"8705 N Wickham Rd.",qty:38,poc:"Jessica Lutz / Matthew Duffy",lat:28.2605,lng:-80.7282,scottfold:0,eScottPro:11,mScottPro:0,slimroll:0,quad:18,sideBySide:3,vertical:0,spindles:0,notes:"Buildings Connected"},
+{id:46,name:"Viera Medical Plaza",region:"VH",address:"8725 N Wickham Rd.",qty:178,poc:"Kelli Romay / Stephanie Scott / Dan Norfolk / Crystal Hoffman",lat:28.2612,lng:-80.7285,scottfold:0,eScottPro:76,mScottPro:0,slimroll:0,quad:21,sideBySide:1,vertical:22,spindles:0,notes:"Buildings Connected"},
+{id:47,name:"Viera Hospital",region:"VH",address:"8745 N Wickham Rd.",qty:637,poc:"John Michaels",lat:28.262,lng:-80.729,scottfold:0,eScottPro:417,mScottPro:0,slimroll:0,quad:59,sideBySide:16,vertical:109,spindles:0,notes:"Buildings Connected"},
+{id:48,name:"HFMG (E. Eau Gallie Blvd.)",region:"South",address:"216-218 E. Eau Gallie Blvd.",qty:24,poc:"Allie Beasy",lat:28.1175,lng:-80.6058,scottfold:0,eScottPro:20,mScottPro:0,slimroll:0,quad:0,sideBySide:4,vertical:0,spindles:0,notes:""},
+{id:49,name:"HF HR Operations (3462-3466)",region:"South",address:"3462-3466 N Harbor City Blvd.",qty:0,poc:"Amber Wilhelm",lat:28.0668,lng:-80.6191,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"with 3470"},
+{id:50,name:"HF Regency Park",region:"HRMC",address:"1340 Medical Park Drive",qty:2,poc:"",lat:28.097,lng:-80.6095,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""}
+];
+
+const COLORS=["#1d4ed8","#059669","#d97706","#dc2626","#7c3aed"];
+const CREW_BG=["#eff6ff","#ecfdf5","#fffbeb","#fef2f2","#f5f3ff"];
+const CREW_LIGHT=["#93c5fd","#6ee7b7","#fcd34d","#fca5a5","#c4b5fd"];
+const RC={HRMC:"#dc2626",South:"#1d4ed8",North:"#7c3aed",VH:"#0891b2",PBH:"#ea580c",CCH:"#059669",Gateway:"#be185d"};
+const REGIONS=["HRMC","South","North","VH","PBH","CCH","Gateway"];
+const STATUS_OPTS=["Not Started","In Progress","On Hold","Completed"];
+const STATUS_COLORS={"Not Started":"#94a3b8","In Progress":"#1d4ed8","On Hold":"#d97706","Completed":"#059669"};
+const STATUS_BG={"Not Started":"#f1f5f9","In Progress":"#dbeafe","On Hold":"#fef3c7","Completed":"#dcfce7"};
+const PRIORITY_OPTS=["Normal","High","Critical"];
+const fmt=n=>n.toLocaleString();
+const dist=(a,b)=>Math.sqrt(Math.pow(a.lat-b.lat,2)+Math.pow(a.lng-b.lng,2))*69;
+const estHrs=(s,rate)=>s.qty<= 20?Math.max(s.qty/(rate||15),0.25):s.qty/((rate||15)*1.5);
+const dateFmt=(d)=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+const dateKey=(d)=>d.toISOString().split("T")[0];
+
+/* ═══ DEFAULT SETTINGS ═══ */
+function defaultSettings(){
+  const d=new Date();while(d.getDay()!==1)d.setDate(d.getDate()+1);
+  return{
+    startDate:dateKey(d),
+    crewCount:3,
+    crewNames:["Crew A","Crew B","Crew C","Crew D","Crew E"],
+    hrsPerDay:8,
+    lunchBreak:0.5,
+    maxDispensersPerDay:500,
+    maxSitesPerDay:10,
+    dispenserRate:15,
+    regionGrouping:true,
+    travelTimeMin:20,
+  }
+}
+
+/* ═══ ROUTING ENGINE ═══ */
+function buildSchedule(sites,assignments,settings,siteState){
+  const schedule={};const workHrs=settings.hrsPerDay-settings.lunchBreak;
+  for(let ci=0;ci<settings.crewCount;ci++){
+    const crewSites=sites.filter(s=>assignments[s.id]===ci);
+    // Respect day-locks: locked sites go to their locked day first
+    const locked=crewSites.filter(s=>siteState[s.id]?.lockedDay);
+    const unlocked=crewSites.filter(s=>!siteState[s.id]?.lockedDay);
+    const dayMap={};
+    locked.forEach(s=>{const dk=siteState[s.id].lockedDay;if(!dayMap[dk])dayMap[dk]=[];dayMap[dk].push(s)});
+    let dayIdx=0,dayHrs=0;const days=[];let currentDay=[];
+    unlocked.forEach((s,i)=>{
+      const hrs=estHrs(s,settings.dispenserRate)+(i>0?settings.travelTimeMin/60:0);
+      const wouldExceedSites=currentDay.length>=settings.maxSitesPerDay;
+      const wouldExceedQty=currentDay.reduce((sum,x)=>sum+x.qty,0)+s.qty>settings.maxDispensersPerDay;
+      if((dayHrs+hrs>workHrs||wouldExceedSites||wouldExceedQty)&&currentDay.length>0){
+        days.push(currentDay);currentDay=[];dayHrs=0}
+      currentDay.push({...s,estHrs:Math.round(hrs*10)/10});dayHrs+=hrs});
+    if(currentDay.length>0)days.push(currentDay);
+    // Merge locked days into schedule
+    const start=new Date(settings.startDate+"T00:00:00");
+    schedule[ci]=days.map((daySites,i)=>{
+      const d=new Date(start);let skip=0;
+      for(let j=0;j<=i+skip;j++){if(d.getDay()===0||d.getDay()===6){skip++;d.setDate(d.getDate()+1)}if(j<i+skip)d.setDate(d.getDate()+1)}
+      return{date:new Date(d),sites:daySites,totalQty:daySites.reduce((s,x)=>s+x.qty,0),
+        totalHrs:Math.round(daySites.reduce((s,x)=>s+(x.estHrs||estHrs(x,settings.dispenserRate)),0)*10)/10}});
+  }
+  return schedule;
+}
+
+/* ═══ SETTINGS MODAL ═══ */
+function SettingsModal({settings,setSettings,onClose}){
+  const[local,setLocal]=useState({...settings});
+  const upd=(k,v)=>setLocal(p=>({...p,[k]:v}));
+  const save=()=>{setSettings(local);onClose()};
+  return React.createElement("div",{className:"modal-overlay",onClick:e=>e.target===e.currentTarget&&onClose()},
+    React.createElement("div",{className:"modal"},
+      React.createElement("div",{className:"modal-header"},
+        React.createElement("h3",{style:{fontSize:16,fontWeight:700,color:"#0a1628"}},"Dashboard Settings"),
+        React.createElement("button",{onClick:onClose,className:"btn btn-sm btn-slate"},"\u2715")),
+      React.createElement("div",{className:"modal-body"},
+        React.createElement("div",{className:"form-row"},
+          React.createElement("div",{className:"form-group"},
+            React.createElement("label",{className:"form-label"},"Project Start Date"),
+            React.createElement("input",{type:"date",value:local.startDate,onChange:e=>upd("startDate",e.target.value),style:{width:"100%"}})),
+          React.createElement("div",{className:"form-group"},
+            React.createElement("label",{className:"form-label"},"Number of Crews"),
+            React.createElement("select",{value:local.crewCount,onChange:e=>upd("crewCount",+e.target.value),style:{width:"100%"}},
+              [2,3,4,5].map(n=>React.createElement("option",{key:n,value:n},n+" Crews"))))),
+        Array.from({length:local.crewCount}).map((_,i)=>
+          React.createElement("div",{key:i,className:"form-group",style:{display:"flex",gap:8,alignItems:"center"}},
+            React.createElement("div",{style:{width:12,height:12,borderRadius:6,background:COLORS[i],flexShrink:0}}),
+            React.createElement("input",{type:"text",value:local.crewNames[i]||"Crew "+"ABCDE"[i],onChange:e=>{const n=[...local.crewNames];n[i]=e.target.value;upd("crewNames",n)},style:{flex:1}}))),
+        React.createElement("hr",{style:{border:"none",borderTop:"1px solid #e2e8f0",margin:"16px 0"}}),
+        React.createElement("div",{style:{fontSize:13,fontWeight:700,color:"#1e293b",marginBottom:10}},"Work Rules"),
+        React.createElement("div",{className:"form-row"},
+          React.createElement("div",{className:"form-group"},
+            React.createElement("label",{className:"form-label"},"Hours per Day"),
+            React.createElement("select",{value:local.hrsPerDay,onChange:e=>upd("hrsPerDay",+e.target.value),style:{width:"100%"}},
+              [6,7,8,9,10,12].map(n=>React.createElement("option",{key:n,value:n},n+"h")))),
+          React.createElement("div",{className:"form-group"},
+            React.createElement("label",{className:"form-label"},"Lunch Break"),
+            React.createElement("select",{value:local.lunchBreak,onChange:e=>upd("lunchBreak",+e.target.value),style:{width:"100%"}},
+              [0,0.25,0.5,0.75,1].map(n=>React.createElement("option",{key:n,value:n},n===0?"None":n*60+"min"))))),
+        React.createElement("div",{className:"form-row"},
+          React.createElement("div",{className:"form-group"},
+            React.createElement("label",{className:"form-label"},"Max Dispensers / Day / Crew"),
+            React.createElement("input",{type:"number",value:local.maxDispensersPerDay,onChange:e=>upd("maxDispensersPerDay",+e.target.value),style:{width:"100%"},min:50,step:50})),
+          React.createElement("div",{className:"form-group"},
+            React.createElement("label",{className:"form-label"},"Max Sites / Day / Crew"),
+            React.createElement("input",{type:"number",value:local.maxSitesPerDay,onChange:e=>upd("maxSitesPerDay",+e.target.value),style:{width:"100%"},min:1,max:20}))),
+        React.createElement("div",{className:"form-row"},
+          React.createElement("div",{className:"form-group"},
+            React.createElement("label",{className:"form-label"},"Dispenser Install Rate (per hr)"),
+            React.createElement("input",{type:"number",value:local.dispenserRate,onChange:e=>upd("dispenserRate",+e.target.value),style:{width:"100%"},min:5,max:50})),
+          React.createElement("div",{className:"form-group"},
+            React.createElement("label",{className:"form-label"},"Travel Time Between Sites (min)"),
+            React.createElement("input",{type:"number",value:local.travelTimeMin,onChange:e=>upd("travelTimeMin",+e.target.value),style:{width:"100%"},min:5,max:60}))),
+        React.createElement("hr",{style:{border:"none",borderTop:"1px solid #e2e8f0",margin:"16px 0"}}),
+        React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between"}},
+          React.createElement("div",null,
+            React.createElement("div",{style:{fontSize:13,fontWeight:700,color:"#1e293b"}},"Region-Based Grouping"),
+            React.createElement("div",{style:{fontSize:11,color:"#64748b"}},"Keep crews within regions vs cross-region optimization")),
+          React.createElement("div",{className:"toggle"+(local.regionGrouping?" on":""),onClick:()=>upd("regionGrouping",!local.regionGrouping)},
+            React.createElement("div",{className:"toggle-knob"})))),
+      React.createElement("div",{className:"modal-footer"},
+        React.createElement("button",{onClick:onClose,className:"btn btn-slate"},"Cancel"),
+        React.createElement("button",{onClick:save,className:"btn btn-primary"},"Save"))));
+}
+
+
+/* ═══ LEAFLET MAP ═══ */
+function RouteMap({sites,assignments,nCrews,schedule,onSelect,crewFilter,settings,siteState}){
+  const mapRef=useRef(null);const mapInst=useRef(null);const layerRef=useRef(null);const tileRef=useRef(null);
+  const[basemap,setBasemap]=useState("voyager");
+  const TILES={
+    voyager:{url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',attr:'&copy; OSM &copy; CARTO',sub:'abcd',max:20},
+    light:{url:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',attr:'&copy; OSM &copy; CARTO',sub:'abcd',max:20},
+    satellite:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',attr:'Esri',max:19},
+    hybrid:{url:'https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',attr:'Google',sub:['mt0','mt1','mt2','mt3'],max:20}
+  };
+  useEffect(()=>{
+    if(!mapRef.current||mapInst.current)return;
+    const m=L.map(mapRef.current,{zoomControl:true,scrollWheelZoom:true,preferCanvas:true}).setView([28.15,-80.68],10);
+    const t=TILES[basemap];
+    tileRef.current=L.tileLayer(t.url,{attribution:t.attr,subdomains:t.sub||'abc',maxZoom:t.max,detectRetina:true}).addTo(m);
+    mapInst.current=m;layerRef.current=L.layerGroup().addTo(m);
+    return()=>{if(mapInst.current){mapInst.current.remove();mapInst.current=null}}
+  },[]);
+  useEffect(()=>{
+    if(!mapInst.current)return;
+    if(tileRef.current)mapInst.current.removeLayer(tileRef.current);
+    const t=TILES[basemap];
+    tileRef.current=L.tileLayer(t.url,{attribution:t.attr,subdomains:t.sub||'abc',maxZoom:t.max,detectRetina:true}).addTo(mapInst.current);
+  },[basemap]);
+  useEffect(()=>{
+    if(!mapInst.current||!layerRef.current)return;
+    layerRef.current.clearLayers();
+    sites.forEach(s=>{
+      const ci=assignments[s.id];if(crewFilter!=="all"&&ci!==+crewFilter&&ci!=="unassigned")return;
+      const col=typeof ci==="number"?COLORS[ci]:"#94a3b8";
+      const r=s.qty===0?6:s.qty<20?8:s.qty<100?12:s.qty<300?16:s.qty<700?20:26;
+      const st=siteState[s.id]||{};const statusCol=STATUS_COLORS[st.status]||"#94a3b8";
+      const priBorder=st.priority==="Critical"?"3px solid #dc2626":st.priority==="High"?"3px solid #f59e0b":"2px solid #fff";
+      const icon=L.divIcon({className:'',html:'<div class="crew-marker" style="width:'+r*2+'px;height:'+r*2+'px;background:'+col+';opacity:'+(typeof ci==="number"?0.9:0.35)+';border:'+priBorder+'">'+(r>=12?s.qty:'')+'</div>',iconSize:[r*2,r*2],iconAnchor:[r,r]});
+      const mk=L.marker([s.lat,s.lng],{icon}).addTo(layerRef.current);
+      const statusBadge='<span style="display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:'+STATUS_BG[st.status||"Not Started"]+';color:'+STATUS_COLORS[st.status||"Not Started"]+'">'+(st.status||"Not Started")+'</span>';
+      mk.bindPopup('<div style="min-width:200px"><strong style="font-size:13px">'+s.name+'</strong><br/><span style="color:#64748b;font-size:11px">'+s.address+'</span><br/><div style="margin:6px 0">'+statusBadge+'</div><div style="display:flex;gap:8px;font-size:12px"><span style="font-weight:700;color:'+col+'">'+(typeof ci==="number"?settings.crewNames[ci]:"Unassigned")+'</span><span style="font-weight:700">'+s.qty+' dispensers</span></div>'+(s.poc?'<div style="margin-top:4px;font-size:11px;color:#64748b">POC: '+s.poc+'</div>':'')+(st.crewNotes?'<div style="margin-top:4px;font-size:11px;padding:3px 6px;background:#eff6ff;border-radius:4px;color:#1e40af">'+st.crewNotes+'</div>':'')+'</div>');
+      mk.on('click',()=>onSelect(s));layerRef.current.addLayer(mk)});
+    for(let ci=0;ci<nCrews;ci++){
+      if(crewFilter!=="all"&&ci!==+crewFilter)continue;
+      const cs=sites.filter(s=>assignments[s.id]===ci);
+      if(cs.length>=2){const ln=L.polyline(cs.map(s=>[s.lat,s.lng]),{color:COLORS[ci],weight:4,opacity:0.7,dashArray:'8,6'});layerRef.current.addLayer(ln)}}
+    if(sites.length&&!mapInst.current._fitted){
+      try{const b=L.latLngBounds(sites.map(s=>[s.lat,s.lng]));mapInst.current.fitBounds(b,{padding:[40,40],maxZoom:12});mapInst.current._fitted=true}catch(e){}
+    }
+  },[sites,assignments,nCrews,crewFilter,siteState,settings.crewNames]);
+  const btn=(k,lbl)=>React.createElement("button",{key:k,onClick:()=>setBasemap(k),style:{padding:"5px 10px",fontSize:11,fontWeight:700,border:"none",borderRadius:4,cursor:"pointer",background:basemap===k?"#1d4ed8":"#fff",color:basemap===k?"#fff":"#334155",boxShadow:"0 1px 2px rgba(0,0,0,0.1)"}},lbl);
+  const fit=()=>{if(!mapInst.current||!sites.length)return;try{const b=L.latLngBounds(sites.map(s=>[s.lat,s.lng]));mapInst.current.fitBounds(b,{padding:[40,40],maxZoom:13})}catch(e){}};
+  return React.createElement("div",{style:{position:"relative",width:"100%"}},
+    React.createElement("div",{style:{position:"absolute",top:10,right:10,zIndex:400,display:"flex",gap:4,background:"rgba(255,255,255,0.95)",padding:4,borderRadius:6,boxShadow:"0 2px 8px rgba(0,0,0,0.15)"}},
+      btn("voyager","Street"),btn("light","Light"),btn("satellite","Satellite"),btn("hybrid","Hybrid"),
+      React.createElement("button",{onClick:fit,style:{padding:"5px 10px",fontSize:11,fontWeight:700,border:"none",borderRadius:4,cursor:"pointer",background:"#f59e0b",color:"#fff",boxShadow:"0 1px 2px rgba(0,0,0,0.1)",marginLeft:4},title:"Fit all sites"},"\u2316 Fit")
+    ),
+    React.createElement("div",{ref:mapRef,style:{width:"100%",height:"calc(100vh - 280px)",minHeight:600,borderRadius:10,border:"2px solid #0a1628",boxShadow:"0 4px 16px rgba(10,22,40,0.15)"}})
+  );
+}
+
+/* ═══ WEEKLY SCHEDULE ═══ */
+function WeeklySchedule({schedule,nCrews,assignments,setAssignments,sites,settings,siteState}){
+  const[weekOff,setWeekOff]=useState(0);
+  const allDays=useMemo(()=>{
+    const days=new Set();Object.values(schedule).forEach(cd=>cd.forEach(d=>days.add(d.date.toDateString())));
+    return[...days].sort((a,b)=>new Date(a)-new Date(b))},[schedule]);
+  const weekDays=allDays.slice(weekOff*5,weekOff*5+5);
+  const totalWeeks=Math.ceil(allDays.length/5)||1;
+  const[dragSite,setDragSite]=useState(null);
+  const onDS=(e,id)=>{setDragSite(id);e.dataTransfer.effectAllowed="move"};
+  const onDO=e=>{e.preventDefault();e.currentTarget.classList.add("drag-over")};
+  const onDL=e=>e.currentTarget.classList.remove("drag-over");
+  const onDR=(e,ci)=>{e.preventDefault();e.currentTarget.classList.remove("drag-over");if(dragSite!=null){setAssignments(p=>({...p,[dragSite]:ci}));setDragSite(null)}};
+
+  return React.createElement("div",null,
+    React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
+      React.createElement("div",{style:{display:"flex",gap:8,alignItems:"center"}},
+        React.createElement("button",{className:"btn btn-sm btn-slate",onClick:()=>setWeekOff(Math.max(0,weekOff-1)),disabled:weekOff===0},"\u25C0"),
+        React.createElement("span",{style:{fontSize:13,fontWeight:700,padding:"0 8px"}},"Week "+(weekOff+1)+" of "+totalWeeks),
+        React.createElement("button",{className:"btn btn-sm btn-slate",onClick:()=>setWeekOff(Math.min(totalWeeks-1,weekOff+1)),disabled:weekOff>=totalWeeks-1},"\u25B6")),
+      React.createElement("span",{style:{fontSize:11,color:"#64748b"}},"Drag sites between crews to reassign")),
+    React.createElement("div",{style:{display:"grid",gridTemplateColumns:"130px repeat("+(weekDays.length||1)+", 1fr)",background:"#fff",borderRadius:8,border:"1px solid #d1d5db",overflow:"hidden"}},
+      React.createElement("div",{style:{padding:10,background:"#0a1628",color:"#94a3b8",fontSize:10,fontWeight:700,borderBottom:"1px solid #1e293b"}},"CREW"),
+      weekDays.map(ds=>{const d=new Date(ds);return React.createElement("div",{key:ds,style:{padding:"8px 6px",background:"#0a1628",borderBottom:"1px solid #1e293b",textAlign:"center"}},
+        React.createElement("div",{style:{fontSize:10,fontWeight:700,color:"#f59e0b"}},["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]),
+        React.createElement("div",{style:{fontSize:15,fontWeight:800,color:"#fff"}},d.getDate()),
+        React.createElement("div",{style:{fontSize:10,color:"#94a3b8"}},["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]))}),
+      Array.from({length:nCrews}).map((_,ci)=>[
+        React.createElement("div",{key:ci+"-l",onDragOver:onDO,onDragLeave:onDL,onDrop:e=>onDR(e,ci),
+          style:{padding:10,background:CREW_BG[ci],borderBottom:"1px solid #e2e8f0",borderRight:"1px solid #e2e8f0"}},
+          React.createElement("div",{style:{fontSize:13,fontWeight:700,color:COLORS[ci]}},settings.crewNames[ci]),
+          React.createElement("div",{style:{fontSize:10,color:"#64748b"}},(schedule[ci]||[]).reduce((s,d)=>s+d.totalQty,0)+" units")),
+        weekDays.map(ds=>{
+          const dayData=(schedule[ci]||[]).find(d=>d.date.toDateString()===ds);
+          return React.createElement("div",{key:ci+"-"+ds,onDragOver:onDO,onDragLeave:onDL,onDrop:e=>onDR(e,ci),
+            style:{padding:4,borderBottom:"1px solid #e2e8f0",borderRight:"1px solid #f1f5f9",background:dayData?"#fff":"#fafafa",minHeight:80,fontSize:10}},
+            dayData&&dayData.sites.map(s=>{
+              const st=siteState[s.id]||{};
+              return React.createElement("div",{key:s.id,className:"site-card",draggable:true,onDragStart:e=>onDS(e,s.id),
+                style:{padding:"3px 5px",marginBottom:2,borderRadius:3,background:CREW_BG[ci],borderLeft:"3px solid "+COLORS[ci]}},
+                React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
+                  React.createElement("span",{style:{fontWeight:600,color:"#1e293b",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}},s.name),
+                  st.priority==="Critical"&&React.createElement("span",{style:{color:"#dc2626"}},"\u26A0"),
+                  st.priority==="High"&&React.createElement("span",{style:{color:"#f59e0b"}},"\u2605")),
+                React.createElement("div",{style:{color:"#64748b"}},s.qty+" units"))}),
+            dayData&&React.createElement("div",{style:{fontSize:9,color:COLORS[ci],fontWeight:700,marginTop:2,textAlign:"right"}},dayData.totalQty+" / "+dayData.totalHrs+"h"))
+        })
+      ]).flat()),
+    // Unassigned tray
+    React.createElement("div",{style:{marginTop:12,background:"#fff",border:"1px solid #d1d5db",borderRadius:8,padding:14}},
+      React.createElement("div",{style:{fontSize:12,fontWeight:700,color:"#64748b",marginBottom:8}},"UNASSIGNED (drag to a crew row above)"),
+      React.createElement("div",{style:{display:"flex",gap:4,flexWrap:"wrap"}},
+        sites.filter(s=>assignments[s.id]==="unassigned"||assignments[s.id]===undefined).filter(s=>s.qty>0).map(s=>
+          React.createElement("div",{key:s.id,className:"site-card",draggable:true,onDragStart:e=>onDS(e,s.id),
+            style:{padding:"4px 8px",borderRadius:4,background:"#f1f5f9",border:"1px solid #e2e8f0",fontSize:10}},
+            s.name+" ("+s.qty+")")))));
+}
+
+/* ═══ ROUTE DETAILS ═══ */
+function RouteDetail({schedule,nCrews,settings,siteState}){
+  const[selCrew,setSelCrew]=useState(0);
+  const days=schedule[selCrew]||[];
+  const totalQty=days.reduce((s,d)=>s+d.totalQty,0);
+  return React.createElement("div",{style:{display:"grid",gridTemplateColumns:"260px 1fr",gap:16}},
+    React.createElement("div",null,
+      React.createElement("div",{style:{display:"flex",gap:4,marginBottom:12,flexWrap:"wrap"}},
+        Array.from({length:nCrews}).map((_,ci)=>React.createElement("button",{key:ci,className:"btn btn-sm",
+          style:{background:selCrew===ci?COLORS[ci]:"#e2e8f0",color:selCrew===ci?"#fff":"#475569"},onClick:()=>setSelCrew(ci)},settings.crewNames[ci]))),
+      React.createElement("div",{style:{background:"#fff",borderRadius:8,border:"1px solid #d1d5db",padding:14,marginBottom:12}},
+        React.createElement("div",{style:{fontSize:15,fontWeight:700,color:COLORS[selCrew]}},settings.crewNames[selCrew]+" Route Plan"),
+        React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:10}},
+          [["SITES",days.reduce((s,d)=>s+d.sites.length,0)],["DISPENSERS",fmt(totalQty)],["DAYS",days.length],["EST HRS",Math.round(days.reduce((s,d)=>s+d.totalHrs,0))]].map(([l,v])=>
+            React.createElement("div",{key:l,style:{background:CREW_BG[selCrew],borderRadius:6,padding:8}},
+              React.createElement("div",{style:{fontSize:9,color:"#64748b",fontWeight:700}},l),
+              React.createElement("div",{style:{fontSize:18,fontWeight:800,color:COLORS[selCrew]}},v))))),
+      days.map((day,i)=>React.createElement("div",{key:i,style:{background:"#fff",borderRadius:6,border:"1px solid #d1d5db",padding:"8px 12px",marginBottom:6,borderLeft:"3px solid "+COLORS[selCrew]}},
+        React.createElement("div",{style:{display:"flex",justifyContent:"space-between",fontSize:12}},
+          React.createElement("span",{style:{fontWeight:700}},"Day "+(i+1)+" \u2014 "+dateFmt(day.date)),
+          React.createElement("span",{style:{color:COLORS[selCrew],fontWeight:600}},day.sites.length+" stops")),
+        React.createElement("div",{style:{fontSize:10,color:"#64748b"}},day.totalQty+" units \u00b7 ~"+day.totalHrs+"h")))),
+    React.createElement("div",null,
+      days.map((day,di)=>React.createElement("div",{key:di,style:{background:"#fff",borderRadius:8,border:"1px solid #d1d5db",padding:16,marginBottom:12}},
+        React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
+          React.createElement("div",null,
+            React.createElement("span",{style:{fontSize:14,fontWeight:700,color:COLORS[selCrew]}},"Day "+(di+1)),
+            React.createElement("span",{style:{fontSize:13,color:"#64748b",marginLeft:8}},dateFmt(day.date))),
+          React.createElement("div",{style:{fontSize:12,fontWeight:600}},day.totalQty+" units \u00b7 "+day.totalHrs+"h")),
+        day.sites.map((s,si)=>{
+          const travelMi=si>0?Math.round(dist(day.sites[si-1],s)*10)/10:0;
+          const st=siteState[s.id]||{};
+          return React.createElement(React.Fragment,{key:s.id},
+            si>0&&React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"3px 0 3px 10px",color:"#94a3b8",fontSize:10}},"\u2192 "+travelMi+" mi"),
+            React.createElement("div",{className:"route-step",style:{borderLeft:"3px solid "+(STATUS_COLORS[st.status]||"#94a3b8")}},
+              React.createElement("div",{className:"step-num",style:{background:COLORS[selCrew]}},si+1),
+              React.createElement("div",{style:{flex:1}},
+                React.createElement("div",{style:{fontWeight:700,color:"#1e293b",display:"flex",alignItems:"center",gap:6}},s.name,
+                  st.priority==="Critical"&&React.createElement("span",{className:"badge badge-red"},"\u26A0 Critical"),
+                  st.priority==="High"&&React.createElement("span",{className:"badge badge-amber"},"\u2605 High")),
+                React.createElement("div",{style:{color:"#64748b",marginTop:1}},s.address)),
+              React.createElement("div",{style:{textAlign:"right",flexShrink:0}},
+                React.createElement("div",{style:{fontWeight:700,color:COLORS[selCrew]}},s.qty+" units"),
+                React.createElement("div",{style:{fontSize:10,color:"#94a3b8"}},(s.estHrs||"")+"h")),
+              React.createElement("span",{className:"badge",style:{background:STATUS_BG[st.status||"Not Started"],color:STATUS_COLORS[st.status||"Not Started"]}},st.status||"Not Started")))})))));
+}
+
+
+/* ═══ PROJECT TIMELINE ═══ */
+/* ═══ INTERACTIVE GANTT CHART ═══ */
+function ProjectTimeline({schedule,nCrews,settings,ganttOverrides,setGanttOverrides,sites,assignments}){
+  const[dayWidth,setDayWidth]=useState(44);
+  const[expandBefore,setExpandBefore]=useState(0);
+  const[expandAfter,setExpandAfter]=useState(0);
+  const[drag,setDrag]=useState(null);
+  const gridRef=useRef(null);
+
+  // Build one bar per site-day from schedule + apply overrides
+  const bars=useMemo(()=>{
+    const b=[];
+    for(let ci=0;ci<nCrews;ci++){
+      (schedule[ci]||[]).forEach(day=>{
+        day.sites.forEach(s=>{
+          b.push({key:ci+"_"+s.id+"_"+day.date.toDateString(),siteId:s.id,siteName:s.name,qty:s.qty,crewIdx:ci,date:new Date(day.date)});
+        });
+      });
+    }
+    return b;
+  },[schedule,nCrews]);
+
+  // Determine auto date range from bars
+  const autoRange=useMemo(()=>{
+    if(bars.length===0){const t=new Date(settings.startDate);return{start:new Date(t),end:new Date(t.getTime()+6*86400000)}}
+    const dates=bars.map(b=>{const d=new Date(b.date);const off=ganttOverrides[b.siteId]?.offset||0;d.setDate(d.getDate()+off);return d});
+    const minT=Math.min(...dates.map(d=>d.getTime()));const maxT=Math.max(...dates.map(d=>d.getTime()));
+    return{start:new Date(minT),end:new Date(maxT)};
+  },[bars,ganttOverrides,settings.startDate]);
+
+  const rangeStart=useMemo(()=>{const d=new Date(autoRange.start);d.setHours(0,0,0,0);d.setDate(d.getDate()-expandBefore);return d},[autoRange.start,expandBefore]);
+  const rangeEnd=useMemo(()=>{const d=new Date(autoRange.end);d.setHours(0,0,0,0);d.setDate(d.getDate()+expandAfter);return d},[autoRange.end,expandAfter]);
+  const totalDays=Math.max(1,Math.ceil((rangeEnd-rangeStart)/86400000)+1);
+
+  const dayIndex=(date,siteId)=>{
+    const d=new Date(date);const off=ganttOverrides[siteId]?.offset||0;d.setDate(d.getDate()+off);d.setHours(0,0,0,0);
+    return Math.round((d-rangeStart)/86400000);
+  };
+
+  // Drag handling
+  useEffect(()=>{
+    if(!drag)return;
+    const move=(e)=>{
+      const dx=e.clientX-drag.startX;const delta=Math.round(dx/dayWidth);
+      setGanttOverrides(p=>({...p,[drag.siteId]:{offset:drag.origOffset+delta}}));
+    };
+    const up=()=>setDrag(null);
+    window.addEventListener("mousemove",move);window.addEventListener("mouseup",up);
+    return()=>{window.removeEventListener("mousemove",move);window.removeEventListener("mouseup",up)};
+  },[drag,dayWidth,setGanttOverrides]);
+
+  const startDrag=(e,b)=>{
+    e.preventDefault();e.stopPropagation();
+    setDrag({siteId:b.siteId,startX:e.clientX,origOffset:ganttOverrides[b.siteId]?.offset||0});
+  };
+
+  const resetOverrides=()=>{setGanttOverrides({});setExpandBefore(0);setExpandAfter(0)};
+
+  const totalUnits=INIT_SITES.reduce((s,f)=>s+f.qty,0);
+  const overrideCount=Object.values(ganttOverrides).filter(o=>o && o.offset!==0).length;
+  const zoomLabel=dayWidth>=60?"Day (XL)":dayWidth>=40?"Day":dayWidth>=25?"Compact":dayWidth>=15?"Week":"Month";
+
+  const monthHeaders=useMemo(()=>{
+    const months=[];let curMonth=-1,curYear=-1,span=0,startIdx=0;
+    for(let i=0;i<totalDays;i++){
+      const d=new Date(rangeStart);d.setDate(d.getDate()+i);
+      if(d.getMonth()!==curMonth||d.getFullYear()!==curYear){
+        if(span>0)months.push({label:new Date(rangeStart.getTime()+startIdx*86400000).toLocaleDateString("en-US",{month:"short",year:"2-digit"}),span,startIdx});
+        curMonth=d.getMonth();curYear=d.getFullYear();span=1;startIdx=i;
+      }else span++;
+    }
+    if(span>0)months.push({label:new Date(rangeStart.getTime()+startIdx*86400000).toLocaleDateString("en-US",{month:"short",year:"2-digit"}),span,startIdx});
+    return months;
+  },[rangeStart,totalDays]);
+
+  const CREW_LABEL_W=170;
+  const btnS={padding:"5px 9px",fontSize:11,border:"1px solid #d1d5db",background:"#fff",borderRadius:5,cursor:"pointer",fontWeight:600,color:"#334155"};
+
+  return React.createElement("div",{style:{background:"#fff",borderRadius:8,border:"1px solid #d1d5db",padding:20}},
+    // Header + controls
+    React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16,flexWrap:"wrap",gap:12}},
+      React.createElement("div",null,
+        React.createElement("div",{style:{fontSize:16,fontWeight:700}},"Project Gantt Chart"),
+        React.createElement("div",{style:{fontSize:12,color:"#64748b",marginTop:2}},
+          fmt(totalUnits)+" dispensers \u00b7 "+INIT_SITES.filter(s=>s.qty>0).length+" active sites \u00b7 "+totalDays+" days visible",
+          overrideCount>0&&React.createElement("span",{style:{color:"#dc2626",fontWeight:700,marginLeft:8}},"\u2022 "+overrideCount+" manual override"+(overrideCount>1?"s":"")))),
+      React.createElement("div",{style:{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}},
+        React.createElement("span",{style:{fontSize:11,color:"#64748b",fontWeight:700}},"ZOOM"),
+        React.createElement("button",{onClick:()=>setDayWidth(Math.max(10,dayWidth-8)),style:btnS,title:"Zoom out"},"\u2212"),
+        React.createElement("span",{style:{fontSize:11,fontWeight:700,minWidth:70,textAlign:"center",color:"#0a1628"}},zoomLabel),
+        React.createElement("button",{onClick:()=>setDayWidth(Math.min(80,dayWidth+8)),style:btnS,title:"Zoom in"},"+"),
+        React.createElement("span",{style:{width:1,height:22,background:"#e2e8f0",margin:"0 4px"}}),
+        React.createElement("span",{style:{fontSize:11,color:"#64748b",fontWeight:700}},"EXPAND"),
+        React.createElement("button",{onClick:()=>setExpandBefore(e=>e+7),style:btnS,title:"Add week before"},"\u00ab 1w"),
+        React.createElement("button",{onClick:()=>setExpandBefore(e=>e+30),style:btnS,title:"Add month before"},"\u00ab 1mo"),
+        React.createElement("button",{onClick:()=>setExpandAfter(e=>e+7),style:btnS,title:"Add week after"},"1w \u00bb"),
+        React.createElement("button",{onClick:()=>setExpandAfter(e=>e+30),style:btnS,title:"Add month after"},"1mo \u00bb"),
+        React.createElement("span",{style:{width:1,height:22,background:"#e2e8f0",margin:"0 4px"}}),
+        React.createElement("button",{onClick:resetOverrides,style:{...btnS,background:"#fef3c7",borderColor:"#f59e0b",color:"#92400e"},title:"Reset all drag overrides and expansion"},"\u21BA Reset"))),
+
+    // Tip
+    React.createElement("div",{style:{fontSize:11,color:"#64748b",marginBottom:10,background:"#f8fafc",padding:"8px 12px",borderRadius:6,border:"1px solid #e2e8f0"}},
+      "\ud83d\udca1 Drag bars left/right to reschedule. Zoom to change day width. Use Expand buttons to extend the visible range before/after the current schedule."),
+
+    // Gantt grid
+    React.createElement("div",{style:{border:"1px solid #e2e8f0",borderRadius:6,overflow:"auto",maxHeight:"65vh"},ref:gridRef},
+      React.createElement("div",{style:{minWidth:CREW_LABEL_W+totalDays*dayWidth,position:"relative"}},
+        // Month header row
+        React.createElement("div",{style:{display:"flex",background:"#0a1628",color:"#fff",position:"sticky",top:0,zIndex:3}},
+          React.createElement("div",{style:{width:CREW_LABEL_W,padding:"6px 12px",fontSize:10,fontWeight:700,borderRight:"2px solid #334155",flexShrink:0}},"MONTH"),
+          React.createElement("div",{style:{display:"flex",flex:1}},
+            monthHeaders.map((m,i)=>React.createElement("div",{key:i,style:{width:m.span*dayWidth,padding:"6px 8px",fontSize:11,fontWeight:700,borderRight:"1px solid #334155",textAlign:"center",whiteSpace:"nowrap",overflow:"hidden"}},m.label)))),
+        // Day header row
+        React.createElement("div",{style:{display:"flex",background:"#f8fafc",borderBottom:"2px solid #0a1628",position:"sticky",top:26,zIndex:3}},
+          React.createElement("div",{style:{width:CREW_LABEL_W,padding:"6px 12px",fontSize:10,fontWeight:700,color:"#64748b",borderRight:"2px solid #0a1628",flexShrink:0}},"CREW"),
+          Array.from({length:totalDays}).map((_,i)=>{
+            const d=new Date(rangeStart);d.setDate(d.getDate()+i);
+            const isWknd=d.getDay()===0||d.getDay()===6;
+            return React.createElement("div",{key:i,style:{width:dayWidth,padding:"4px 0",textAlign:"center",background:isWknd?"#eef1f5":"transparent",borderRight:"1px solid #e2e8f0",flexShrink:0}},
+              dayWidth>=18&&React.createElement("div",{style:{fontSize:8,color:"#94a3b8",fontWeight:600}},["S","M","T","W","T","F","S"][d.getDay()]),
+              React.createElement("div",{style:{fontSize:dayWidth>=25?11:9,fontWeight:700,color:isWknd?"#94a3b8":"#0a1628"}},dayWidth>=18?d.getDate():(d.getDay()===1?d.getDate():"")));
+          })),
+        // Crew rows with bars
+        Array.from({length:nCrews}).map((_,ci)=>{
+          const crewBars=bars.filter(b=>b.crewIdx===ci);
+          // Group bars on same day so we can stack them
+          const byDay={};crewBars.forEach(b=>{const di=dayIndex(b.date,b.siteId);if(!byDay[di])byDay[di]=[];byDay[di].push(b)});
+          const maxStack=Math.max(1,...Object.values(byDay).map(a=>a.length));
+          const rowH=Math.max(56,maxStack*26+12);
+          return React.createElement("div",{key:ci,style:{display:"flex",borderBottom:"1px solid #e2e8f0",minHeight:rowH,position:"relative"}},
+            React.createElement("div",{style:{width:CREW_LABEL_W,padding:"10px 12px",borderRight:"2px solid #0a1628",background:CREW_BG[ci],display:"flex",alignItems:"center",gap:8,flexShrink:0,position:"sticky",left:0,zIndex:2}},
+              React.createElement("div",{style:{width:12,height:12,borderRadius:6,background:COLORS[ci],flexShrink:0}}),
+              React.createElement("div",null,
+                React.createElement("div",{style:{fontSize:13,fontWeight:700,color:COLORS[ci]}},settings.crewNames[ci]),
+                React.createElement("div",{style:{fontSize:9,color:"#64748b"}},crewBars.length+" stops"))),
+            React.createElement("div",{style:{position:"relative",flex:1,minHeight:rowH}},
+              // Day cell backgrounds
+              Array.from({length:totalDays}).map((_,i)=>{
+                const d=new Date(rangeStart);d.setDate(d.getDate()+i);
+                const isWknd=d.getDay()===0||d.getDay()===6;
+                return React.createElement("div",{key:i,style:{position:"absolute",left:i*dayWidth,top:0,width:dayWidth,height:"100%",background:isWknd?"#f8fafc":"transparent",borderRight:"1px solid #f1f5f9"}});
+              }),
+              // Bars
+              Object.entries(byDay).map(([di,list])=>list.map((b,si)=>{
+                const didx=+di;if(didx<0||didx>=totalDays)return null;
+                const isOverride=(ganttOverrides[b.siteId]?.offset||0)!==0;
+                return React.createElement("div",{
+                  key:b.key,
+                  onMouseDown:(e)=>startDrag(e,b),
+                  title:b.siteName+" \u2014 "+b.qty+" dispensers"+(isOverride?" (moved "+ganttOverrides[b.siteId].offset+"d)":""),
+                  style:{position:"absolute",left:didx*dayWidth+2,top:6+si*26,width:Math.max(dayWidth-4,dayWidth*0.9),height:22,background:COLORS[ci],color:"#fff",borderRadius:4,padding:"0 6px",fontSize:10,fontWeight:700,cursor:drag&&drag.siteId===b.siteId?"grabbing":"grab",userSelect:"none",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",display:"flex",alignItems:"center",justifyContent:"space-between",boxShadow:"0 1px 3px rgba(0,0,0,0.15)",border:isOverride?"2px dashed #fef3c7":"1px solid rgba(255,255,255,0.2)",zIndex:drag&&drag.siteId===b.siteId?10:1}},
+                  React.createElement("span",{style:{overflow:"hidden",textOverflow:"ellipsis",flex:1}},dayWidth>=30?b.siteName:b.qty),
+                  dayWidth>=40&&React.createElement("span",{style:{fontSize:9,background:"rgba(0,0,0,0.25)",padding:"1px 4px",borderRadius:3,marginLeft:4}},b.qty));
+              }).filter(Boolean)).flat())
+          );
+        }))),
+
+    // Summary cards
+    React.createElement("div",{style:{marginTop:16,display:"flex",gap:12,flexWrap:"wrap"}},
+      Array.from({length:nCrews}).map((_,ci)=>{
+        const cd=schedule[ci]||[];const tq=cd.reduce((s,d)=>s+d.totalQty,0);
+        return React.createElement("div",{key:ci,style:{background:CREW_BG[ci],borderRadius:8,padding:"12px 16px",border:"1px solid "+CREW_LIGHT[ci],flex:1,minWidth:160}},
+          React.createElement("div",{style:{fontSize:13,fontWeight:700,color:COLORS[ci]}},settings.crewNames[ci]),
+          React.createElement("div",{style:{fontSize:11,color:"#475569",lineHeight:1.6}},fmt(tq)+" dispensers ("+(totalUnits?Math.round(tq/totalUnits*100):0)+"%) \u00b7 "+cd.length+" days \u00b7 "+cd.reduce((s,d)=>s+d.sites.length,0)+" stops"))
+      }),
+      React.createElement("div",{style:{background:"#f0fdf4",borderRadius:8,padding:"12px 16px",border:"1px solid #bbf7d0",flex:1,minWidth:160}},
+        React.createElement("div",{style:{fontSize:13,fontWeight:700,color:"#16a34a"}},"Project Total"),
+        React.createElement("div",{style:{fontSize:11,color:"#475569",lineHeight:1.6}},fmt(totalUnits)+" dispensers \u00b7 "+totalDays+" days visible"))));
+}
+
+/* ═══ STATUS TRACKER ═══ */
+function StatusTracker({sites,siteState,setSiteState,assignments,nCrews,settings}){
+  const[filterStatus,setFilterStatus]=useState("All");const[filterCrew,setFilterCrew]=useState("all");const[sortBy,setSortBy]=useState("name");
+  const filtered=useMemo(()=>{
+    let f=sites.filter(s=>s.qty>0);
+    if(filterStatus!=="All")f=f.filter(s=>(siteState[s.id]?.status||"Not Started")===filterStatus);
+    if(filterCrew!=="all")f=f.filter(s=>assignments[s.id]===+filterCrew);
+    if(sortBy==="qty")f=[...f].sort((a,b)=>b.qty-a.qty);
+    else if(sortBy==="status")f=[...f].sort((a,b)=>STATUS_OPTS.indexOf(siteState[a.id]?.status||"Not Started")-STATUS_OPTS.indexOf(siteState[b.id]?.status||"Not Started"));
+    else if(sortBy==="priority"){const po={"Critical":0,"High":1,"Normal":2};f=[...f].sort((a,b)=>(po[siteState[a.id]?.priority]??2)-(po[siteState[b.id]?.priority]??2))}
+    else f=[...f].sort((a,b)=>a.name.localeCompare(b.name));
+    return f},[sites,siteState,filterStatus,filterCrew,assignments,sortBy]);
+  const totalActive=sites.filter(s=>s.qty>0).length;
+  const completed=sites.filter(s=>s.qty>0&&siteState[s.id]?.status==="Completed").length;
+  const inProg=sites.filter(s=>s.qty>0&&siteState[s.id]?.status==="In Progress").length;
+  const pctDone=Math.round(completed/totalActive*100);
+  const compQty=sites.filter(s=>s.qty>0&&siteState[s.id]?.status==="Completed").reduce((sum,s)=>sum+s.qty,0);
+  const totalQty=sites.filter(s=>s.qty>0).reduce((sum,s)=>sum+s.qty,0);
+
+  const updSite=(id,key,val)=>setSiteState(p=>({...p,[id]:{...p[id],[key]:val}}));
+
+  return React.createElement("div",null,
+    React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}},
+      React.createElement("div",{style:{background:"#fff",borderRadius:8,border:"1px solid #d1d5db",padding:14}},
+        React.createElement("div",{style:{fontSize:10,color:"#64748b",fontWeight:700}},"OVERALL PROGRESS"),
+        React.createElement("div",{style:{fontSize:28,fontWeight:800,color:"var(--aa-blue)"}},pctDone+"%"),
+        React.createElement("div",{className:"progress-bar",style:{marginTop:6}},React.createElement("div",{className:"progress-fill",style:{width:pctDone+"%",background:"var(--aa-blue)"}}))),
+      React.createElement("div",{style:{background:"#dcfce7",borderRadius:8,padding:14,border:"1px solid #bbf7d0"}},
+        React.createElement("div",{style:{fontSize:10,color:"#166534",fontWeight:700}},"COMPLETED"),
+        React.createElement("div",{style:{fontSize:28,fontWeight:800,color:"#166534"}},completed+"/"+totalActive),
+        React.createElement("div",{style:{fontSize:11,color:"#166534"}},fmt(compQty)+" dispensers done")),
+      React.createElement("div",{style:{background:"#dbeafe",borderRadius:8,padding:14,border:"1px solid #93c5fd"}},
+        React.createElement("div",{style:{fontSize:10,color:"#1e40af",fontWeight:700}},"IN PROGRESS"),
+        React.createElement("div",{style:{fontSize:28,fontWeight:800,color:"#1e40af"}},inProg),
+        React.createElement("div",{style:{fontSize:11,color:"#1e40af"}},"sites active")),
+      React.createElement("div",{style:{background:"#f1f5f9",borderRadius:8,padding:14,border:"1px solid #d1d5db"}},
+        React.createElement("div",{style:{fontSize:10,color:"#64748b",fontWeight:700}},"NOT STARTED"),
+        React.createElement("div",{style:{fontSize:28,fontWeight:800,color:"#64748b"}},totalActive-completed-inProg),
+        React.createElement("div",{style:{fontSize:11,color:"#64748b"}},"sites remaining"))),
+    React.createElement("div",{style:{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap",alignItems:"center"}},
+      React.createElement("select",{value:filterStatus,onChange:e=>setFilterStatus(e.target.value)},
+        React.createElement("option",{value:"All"},"All Statuses"),STATUS_OPTS.map(s=>React.createElement("option",{key:s,value:s},s))),
+      React.createElement("select",{value:filterCrew,onChange:e=>setFilterCrew(e.target.value)},
+        React.createElement("option",{value:"all"},"All Crews"),Array.from({length:nCrews}).map((_,i)=>React.createElement("option",{key:i,value:i},settings.crewNames[i]))),
+      React.createElement("select",{value:sortBy,onChange:e=>setSortBy(e.target.value)},
+        [["name","Name"],["qty","Dispensers"],["status","Status"],["priority","Priority"]].map(([v,l])=>React.createElement("option",{key:v,value:v},l))),
+      React.createElement("span",{style:{fontSize:11,color:"#94a3b8",marginLeft:8}},filtered.length+" sites")),
+    React.createElement("div",{style:{background:"#fff",borderRadius:8,border:"1px solid #d1d5db",overflow:"hidden"}},
+      React.createElement("table",{style:{width:"100%",borderCollapse:"collapse",fontSize:12}},
+        React.createElement("thead",null,React.createElement("tr",{style:{background:"#0a1628",color:"#fff",fontSize:11}},
+          ["Site","Crew","Qty","Status","Priority","Flag","Notes"].map(h=>React.createElement("th",{key:h,style:{padding:"8px 10px",textAlign:"left",fontWeight:700}},h)))),
+        React.createElement("tbody",null,filtered.map(s=>{
+          const ci=assignments[s.id];const st=siteState[s.id]||{};
+          return React.createElement("tr",{key:s.id,style:{borderBottom:"1px solid #f1f5f9"}},
+            React.createElement("td",{style:{padding:"8px 10px"}},
+              React.createElement("div",{style:{fontWeight:600}},s.name),
+              React.createElement("div",{style:{fontSize:10,color:"#64748b"}},s.address)),
+            React.createElement("td",{style:{padding:"8px 10px"}},
+              typeof ci==="number"?React.createElement("span",{style:{color:COLORS[ci],fontWeight:600}},settings.crewNames[ci]):React.createElement("span",{style:{color:"#94a3b8"}},"Unassigned")),
+            React.createElement("td",{style:{padding:"8px 10px",fontWeight:700}},s.qty),
+            React.createElement("td",{style:{padding:"8px 10px"}},
+              React.createElement("select",{value:st.status||"Not Started",onChange:e=>updSite(s.id,"status",e.target.value),
+                style:{padding:"3px 6px",borderRadius:4,fontSize:11,border:"1px solid #d1d5db",background:STATUS_BG[st.status||"Not Started"],color:STATUS_COLORS[st.status||"Not Started"],fontWeight:600}},
+                STATUS_OPTS.map(o=>React.createElement("option",{key:o,value:o},o)))),
+            React.createElement("td",{style:{padding:"8px 10px"}},
+              React.createElement("select",{value:st.priority||"Normal",onChange:e=>updSite(s.id,"priority",e.target.value),
+                style:{padding:"3px 6px",borderRadius:4,fontSize:11,border:"1px solid #d1d5db"}},
+                PRIORITY_OPTS.map(o=>React.createElement("option",{key:o,value:o},o)))),
+            React.createElement("td",{style:{padding:"8px 10px"}},
+              React.createElement("div",{style:{display:"flex",gap:4}},
+                React.createElement("button",{className:"flag-btn",title:"Go-Back",onClick:()=>updSite(s.id,"goback",!st.goback),
+                  style:{background:st.goback?"#fef2f2":"#fff",color:st.goback?"#dc2626":"#94a3b8"}},"\u21A9"),
+                React.createElement("button",{className:"flag-btn",title:"Issue",onClick:()=>updSite(s.id,"issue",!st.issue),
+                  style:{background:st.issue?"#fffbeb":"#fff",color:st.issue?"#d97706":"#94a3b8"}},"\u26A0"))),
+            React.createElement("td",{style:{padding:"8px 10px"}},
+              React.createElement("input",{type:"text",className:"note-input",placeholder:"Add note...",value:st.crewNotes||"",
+                onChange:e=>updSite(s.id,"crewNotes",e.target.value),style:{minHeight:"auto",padding:"4px 6px"}})))
+        })))));
+}
+
+/* ═══ PRINT VIEW ═══ */
+function PrintView({schedule,nCrews,settings,siteState,sites,assignments}){
+  const[printCrew,setPrintCrew]=useState(0);
+  const doPrint=()=>window.print();
+  return React.createElement("div",null,
+    React.createElement("div",{className:"no-print",style:{display:"flex",gap:8,marginBottom:16,alignItems:"center"}},
+      React.createElement("span",{style:{fontSize:13,fontWeight:700}},"Print route sheet for:"),
+      Array.from({length:nCrews}).map((_,ci)=>React.createElement("button",{key:ci,className:"btn btn-sm",
+        style:{background:printCrew===ci?COLORS[ci]:"#e2e8f0",color:printCrew===ci?"#fff":"#475569"},onClick:()=>setPrintCrew(ci)},settings.crewNames[ci])),
+      React.createElement("button",{className:"btn btn-sm btn-primary",onClick:doPrint,style:{marginLeft:16}},"\uD83D\uDDA8 Print / Save PDF")),
+    React.createElement("div",{id:"print-area",style:{background:"#fff",borderRadius:8,border:"1px solid #d1d5db",padding:24}},
+      React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"3px solid #0a1628",paddingBottom:12,marginBottom:16}},
+        React.createElement("div",null,
+          React.createElement("div",{style:{fontSize:20,fontWeight:800,color:"#0a1628"}},"AA INSTALLATION LLC"),
+          React.createElement("div",{style:{fontSize:13,color:"#64748b"}},"HFMG Kimberly-Clark Dispenser Installation")),
+        React.createElement("div",{style:{textAlign:"right"}},
+          React.createElement("div",{style:{fontSize:16,fontWeight:700,color:COLORS[printCrew]}},settings.crewNames[printCrew]+" Route Sheet"),
+          React.createElement("div",{style:{fontSize:12,color:"#64748b"}},"Generated: "+new Date().toLocaleDateString()))),
+      (schedule[printCrew]||[]).map((day,di)=>React.createElement("div",{key:di,style:{marginBottom:20,pageBreakInside:"avoid"}},
+        React.createElement("div",{style:{background:CREW_BG[printCrew],padding:"8px 14px",borderRadius:6,marginBottom:8,borderLeft:"4px solid "+COLORS[printCrew]}},
+          React.createElement("span",{style:{fontSize:14,fontWeight:700,color:COLORS[printCrew]}},"Day "+(di+1)+" \u2014 "+dateFmt(day.date)),
+          React.createElement("span",{style:{float:"right",fontSize:12,color:"#64748b"}},day.sites.length+" stops \u00b7 "+day.totalQty+" units \u00b7 ~"+day.totalHrs+"h")),
+        React.createElement("table",{style:{width:"100%",borderCollapse:"collapse",fontSize:11}},
+          React.createElement("thead",null,React.createElement("tr",{style:{borderBottom:"2px solid #1e293b"}},
+            ["#","Site","Address","POC","Units","Products","Status","Notes"].map(h=>React.createElement("th",{key:h,style:{padding:"5px 6px",textAlign:"left",fontSize:10,fontWeight:700,color:"#64748b"}},h)))),
+          React.createElement("tbody",null,day.sites.map((s,si)=>{
+            const st=siteState[s.id]||{};const orig=INIT_SITES.find(x=>x.id===s.id);
+            const prods=[orig.eScottPro&&"E-Scott:"+orig.eScottPro,orig.mScottPro&&"M-Scott:"+orig.mScottPro,orig.scottfold&&"Scottfold:"+orig.scottfold,orig.slimroll&&"Slimroll:"+orig.slimroll,orig.quad&&"Quad:"+orig.quad,orig.sideBySide&&"SxS:"+orig.sideBySide,orig.vertical&&"Vert:"+orig.vertical,orig.spindles&&"Spindle:"+orig.spindles].filter(Boolean).join(", ");
+            return React.createElement("tr",{key:s.id,style:{borderBottom:"1px solid #e2e8f0"}},
+              React.createElement("td",{style:{padding:"5px 6px",fontWeight:700,color:COLORS[printCrew]}},si+1),
+              React.createElement("td",{style:{padding:"5px 6px",fontWeight:600}},s.name),
+              React.createElement("td",{style:{padding:"5px 6px",color:"#64748b"}},s.address),
+              React.createElement("td",{style:{padding:"5px 6px",color:"#64748b",maxWidth:120}},orig.poc),
+              React.createElement("td",{style:{padding:"5px 6px",fontWeight:700}},s.qty),
+              React.createElement("td",{style:{padding:"5px 6px",fontSize:9,color:"#475569",maxWidth:180}},prods),
+              React.createElement("td",{style:{padding:"5px 6px"}},React.createElement("span",{style:{padding:"1px 6px",borderRadius:8,fontSize:9,fontWeight:600,background:STATUS_BG[st.status||"Not Started"],color:STATUS_COLORS[st.status||"Not Started"]}},st.status||"Not Started")),
+              React.createElement("td",{style:{padding:"5px 6px",fontSize:10,color:"#475569"}},st.crewNotes||orig.notes||"\u2014"))
+          })))))));
+}
+
+/* ═══ DETAIL PANEL ═══ */
+function DetailPanel({site:f,assignments,setAssignments,nCrews,settings,siteState,setSiteState,onClose}){
+  if(!f)return null;
+  const ci=assignments[f.id];const st=siteState[f.id]||{};
+  const updSite=(k,v)=>setSiteState(p=>({...p,[f.id]:{...p[f.id],[k]:v}}));
+  const products=[["E Scott Pro (34348)",f.eScottPro],["M Scott Pro (34346)",f.mScottPro],["Scottfold (09215)",f.scottfold],["Slimroll",f.slimroll],["Quad (44518)",f.quad],["Side by Side (09606)",f.sideBySide],["Vertical (09021)",f.vertical],["Spindles (X2)",f.spindles]].filter(([,v])=>v>0);
+  return React.createElement("div",{style:{position:"fixed",top:0,right:0,width:370,height:"100vh",background:"#fff",borderLeft:"1px solid #d1d5db",boxShadow:"-4px 0 24px rgba(0,0,0,0.1)",zIndex:1000,overflowY:"auto",padding:20}},
+    React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:14}},
+      React.createElement("div",null,
+        React.createElement("div",{style:{fontSize:16,fontWeight:700}},f.name),
+        React.createElement("div",{style:{fontSize:12,color:"#64748b",marginTop:2}},f.address)),
+      React.createElement("button",{onClick:onClose,className:"btn btn-sm btn-slate"},"\u2715")),
+    React.createElement("div",{style:{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}},
+      React.createElement("span",{className:"badge",style:{background:(RC[f.region]||"#64748b")+"18",color:RC[f.region]}},f.region),
+      typeof ci==="number"&&React.createElement("span",{className:"badge",style:{background:COLORS[ci]+"18",color:COLORS[ci]}},settings.crewNames[ci]),
+      React.createElement("span",{className:"badge",style:{background:STATUS_BG[st.status||"Not Started"],color:STATUS_COLORS[st.status||"Not Started"]}},st.status||"Not Started")),
+    React.createElement("div",{className:"form-row",style:{marginBottom:14}},
+      React.createElement("div",{className:"form-group"},
+        React.createElement("label",{className:"form-label"},"Assign Crew"),
+        React.createElement("select",{value:typeof ci==="number"?ci:"unassigned",onChange:e=>setAssignments(p=>({...p,[f.id]:e.target.value==="unassigned"?"unassigned":+e.target.value})),style:{width:"100%"}},
+          React.createElement("option",{value:"unassigned"},"Unassigned"),
+          Array.from({length:nCrews}).map((_,i)=>React.createElement("option",{key:i,value:i},settings.crewNames[i])))),
+      React.createElement("div",{className:"form-group"},
+        React.createElement("label",{className:"form-label"},"Status"),
+        React.createElement("select",{value:st.status||"Not Started",onChange:e=>updSite("status",e.target.value),style:{width:"100%"}},
+          STATUS_OPTS.map(o=>React.createElement("option",{key:o,value:o},o))))),
+    React.createElement("div",{className:"form-row",style:{marginBottom:14}},
+      React.createElement("div",{className:"form-group"},
+        React.createElement("label",{className:"form-label"},"Priority"),
+        React.createElement("select",{value:st.priority||"Normal",onChange:e=>updSite("priority",e.target.value),style:{width:"100%"}},
+          PRIORITY_OPTS.map(o=>React.createElement("option",{key:o,value:o},o)))),
+      React.createElement("div",{className:"form-group"},
+        React.createElement("label",{className:"form-label"},"Lock to Crew #"),
+        React.createElement("select",{value:st.lockedCrew!=null?st.lockedCrew:"none",onChange:e=>updSite("lockedCrew",e.target.value==="none"?null:+e.target.value),style:{width:"100%"}},
+          React.createElement("option",{value:"none"},"Auto-assign"),
+          Array.from({length:nCrews}).map((_,i)=>React.createElement("option",{key:i,value:i},"Lock to "+settings.crewNames[i]))))),
+    React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}},
+      React.createElement("div",{style:{background:"#f8fafc",borderRadius:6,padding:10}},
+        React.createElement("div",{style:{fontSize:10,color:"#94a3b8"}},"DISPENSERS"),
+        React.createElement("div",{style:{fontSize:20,fontWeight:800}},f.qty)),
+      React.createElement("div",{style:{background:"#f8fafc",borderRadius:6,padding:10}},
+        React.createElement("div",{style:{fontSize:10,color:"#94a3b8"}},"EST. HOURS"),
+        React.createElement("div",{style:{fontSize:20,fontWeight:800}},Math.round(estHrs(f)*10)/10))),
+    f.poc&&React.createElement("div",{className:"form-group"},
+      React.createElement("label",{className:"form-label"},"Point of Contact"),
+      React.createElement("div",{style:{fontSize:12}},f.poc)),
+    React.createElement("div",{className:"form-group"},
+      React.createElement("label",{className:"form-label"},"Crew Notes / Flags"),
+      React.createElement("textarea",{className:"note-input",rows:2,value:st.crewNotes||"",onChange:e=>updSite("crewNotes",e.target.value),placeholder:"Add notes for this site..."}),
+      React.createElement("div",{style:{display:"flex",gap:6,marginTop:6}},
+        React.createElement("button",{className:"btn btn-sm "+(st.goback?"btn-red":"btn-outline"),onClick:()=>updSite("goback",!st.goback)},"\u21A9 Go-Back"),
+        React.createElement("button",{className:"btn btn-sm "+(st.issue?"btn-amber":"btn-outline"),onClick:()=>updSite("issue",!st.issue)},"\u26A0 Issue"))),
+    products.length>0&&React.createElement("div",{style:{marginTop:10}},
+      React.createElement("label",{className:"form-label"},"Product Breakdown"),
+      products.map(([n,v])=>React.createElement("div",{key:n,style:{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:"1px solid #f1f5f9",fontSize:11}},
+        React.createElement("span",{style:{color:"#475569"}},n),React.createElement("span",{style:{fontWeight:700}},v)))),
+    f.notes&&React.createElement("div",{style:{marginTop:12,padding:8,background:"#fffbeb",borderRadius:6,border:"1px solid #fde68a",fontSize:11,color:"#78350f"}},
+      React.createElement("strong",null,"Site Note: "),f.notes));
+}
+
+
+/* ═══ ALL SITES TABLE ═══ */
+function AllSites({sites,assignments,nCrews,settings,siteState,onSelect}){
+  const[search,setSearch]=useState("");
+  const[sortCol,setSortCol]=useState("name");
+  const[sortAsc,setSortAsc]=useState(true);
+  const[regionFilt,setRegionFilt]=useState("All");
+  const[crewFilt,setCrewFilt]=useState("all");
+  const toggleSort=col=>{if(sortCol===col)setSortAsc(!sortAsc);else{setSortCol(col);setSortAsc(true)}};
+  const arrow=col=>sortCol===col?(sortAsc?" \u25B2":" \u25BC"):"";
+
+  const filtered=useMemo(()=>{
+    let f=[...sites];
+    if(search){const q=search.toLowerCase();f=f.filter(s=>s.name.toLowerCase().includes(q)||s.address.toLowerCase().includes(q)||s.poc.toLowerCase().includes(q)||(s.notes&&s.notes.toLowerCase().includes(q)))}
+    if(regionFilt!=="All")f=f.filter(s=>s.region===regionFilt);
+    if(crewFilt!=="all")f=f.filter(s=>crewFilt==="unassigned"?(assignments[s.id]==="unassigned"||assignments[s.id]===undefined):assignments[s.id]===+crewFilt);
+    const cmp=(a,b)=>{
+      let va,vb;
+      if(sortCol==="name"){va=a.name.toLowerCase();vb=b.name.toLowerCase()}
+      else if(sortCol==="region"){va=a.region;vb=b.region}
+      else if(sortCol==="address"){va=a.address.toLowerCase();vb=b.address.toLowerCase()}
+      else if(sortCol==="qty"){va=a.qty;vb=b.qty}
+      else if(sortCol==="crew"){va=typeof assignments[a.id]==="number"?assignments[a.id]:99;vb=typeof assignments[b.id]==="number"?assignments[b.id]:99}
+      else if(sortCol==="status"){va=STATUS_OPTS.indexOf(siteState[a.id]?.status||"Not Started");vb=STATUS_OPTS.indexOf(siteState[b.id]?.status||"Not Started")}
+      else if(sortCol==="poc"){va=a.poc.toLowerCase();vb=b.poc.toLowerCase()}
+      else{va=a.name.toLowerCase();vb=b.name.toLowerCase()}
+      if(va<vb)return sortAsc?-1:1;if(va>vb)return sortAsc?1:-1;return 0};
+    f.sort(cmp);return f},[sites,search,regionFilt,crewFilt,assignments,siteState,sortCol,sortAsc]);
+
+  const totalFiltered=filtered.reduce((s,x)=>s+x.qty,0);
+  const gEarthLink=(s)=>"https://earth.google.com/web/@"+s.lat+","+s.lng+",50a,500d,35y,0h,0t,0r";
+
+  const thStyle={padding:"9px 10px",textAlign:"left",fontSize:11,fontWeight:700,cursor:"pointer",userSelect:"none",whiteSpace:"nowrap",borderBottom:"2px solid #1e293b",color:"#fff",background:"#0a1628"};
+  const tdStyle={padding:"8px 10px",borderBottom:"1px solid #f1f5f9",fontSize:12,verticalAlign:"top"};
+
+  return React.createElement("div",null,
+    React.createElement("div",{style:{display:"flex",gap:10,marginBottom:14,flexWrap:"wrap",alignItems:"center"}},
+      React.createElement("div",{style:{position:"relative",flex:"1 1 260px"}},
+        React.createElement("input",{type:"text",value:search,onChange:e=>setSearch(e.target.value),placeholder:"Search by name, address, POC, or notes...",
+          style:{width:"100%",padding:"9px 12px 9px 34px",borderRadius:8,border:"1px solid #d1d5db",fontSize:13}}),
+        React.createElement("span",{style:{position:"absolute",left:10,top:10,color:"#94a3b8",fontSize:15}},"\uD83D\uDD0D")),
+      React.createElement("select",{value:regionFilt,onChange:e=>setRegionFilt(e.target.value),style:{padding:"9px 12px"}},
+        React.createElement("option",{value:"All"},"All Regions"),REGIONS.map(r=>React.createElement("option",{key:r,value:r},r))),
+      React.createElement("select",{value:crewFilt,onChange:e=>setCrewFilt(e.target.value),style:{padding:"9px 12px"}},
+        React.createElement("option",{value:"all"},"All Crews"),
+        Array.from({length:nCrews}).map((_,i)=>React.createElement("option",{key:i,value:i},settings.crewNames[i])),
+        React.createElement("option",{value:"unassigned"},"Unassigned")),
+      React.createElement("div",{style:{fontSize:12,color:"#64748b",fontWeight:600}},filtered.length+" sites \u00b7 "+fmt(totalFiltered)+" dispensers")),
+    React.createElement("div",{style:{background:"#fff",borderRadius:8,border:"1px solid #d1d5db",overflow:"hidden",overflowX:"auto"}},
+      React.createElement("table",{style:{width:"100%",borderCollapse:"collapse",minWidth:1100}},
+        React.createElement("thead",null,
+          React.createElement("tr",null,
+            React.createElement("th",{style:{...thStyle,width:30}},"#"),
+            React.createElement("th",{style:thStyle,onClick:()=>toggleSort("name")},"Site"+arrow("name")),
+            React.createElement("th",{style:thStyle,onClick:()=>toggleSort("region")},"Region"+arrow("region")),
+            React.createElement("th",{style:thStyle,onClick:()=>toggleSort("address")},"Address"+arrow("address")),
+            React.createElement("th",{style:thStyle,onClick:()=>toggleSort("qty")},"Qty"+arrow("qty")),
+            React.createElement("th",{style:thStyle,onClick:()=>toggleSort("crew")},"Crew"+arrow("crew")),
+            React.createElement("th",{style:thStyle,onClick:()=>toggleSort("status")},"Status"+arrow("status")),
+            React.createElement("th",{style:thStyle,onClick:()=>toggleSort("poc")},"POC"+arrow("poc")),
+            React.createElement("th",{style:{...thStyle,width:60}},"Products"),
+            React.createElement("th",{style:thStyle},"Notes"),
+            React.createElement("th",{style:{...thStyle,width:50,textAlign:"center"}},"\uD83C\uDF0E"))),
+        React.createElement("tbody",null,
+          filtered.map((s,idx)=>{
+            const ci=assignments[s.id];const st=siteState[s.id]||{};
+            const prods=[s.eScottPro&&"E-Scott:"+s.eScottPro,s.mScottPro&&"M-Scott:"+s.mScottPro,s.scottfold&&"Scottfold:"+s.scottfold,s.slimroll&&"Slimroll:"+s.slimroll,s.quad&&"Quad:"+s.quad,s.sideBySide&&"SxS:"+s.sideBySide,s.vertical&&"Vert:"+s.vertical,s.spindles&&"Spindle:"+s.spindles].filter(Boolean).join(", ");
+            const rowBg=idx%2===0?"#fff":"#f8fafc";
+            return React.createElement("tr",{key:s.id,style:{background:rowBg,cursor:"pointer"},
+              onClick:()=>onSelect(s),onMouseEnter:e=>e.currentTarget.style.background="#eff6ff",onMouseLeave:e=>e.currentTarget.style.background=rowBg},
+              React.createElement("td",{style:{...tdStyle,fontWeight:700,color:"#94a3b8",textAlign:"center"}},s.id),
+              React.createElement("td",{style:{...tdStyle,fontWeight:600,color:"#1e293b",maxWidth:200}},s.name),
+              React.createElement("td",{style:tdStyle},React.createElement("span",{style:{padding:"2px 8px",borderRadius:10,fontSize:10,fontWeight:600,background:(RC[s.region]||"#64748b")+"18",color:RC[s.region]||"#64748b"}},s.region)),
+              React.createElement("td",{style:{...tdStyle,color:"#475569",maxWidth:220}},s.address),
+              React.createElement("td",{style:{...tdStyle,fontWeight:700,fontSize:13}},s.qty),
+              React.createElement("td",{style:tdStyle},typeof ci==="number"?React.createElement("span",{style:{color:COLORS[ci],fontWeight:700,fontSize:11}},settings.crewNames[ci]):React.createElement("span",{style:{color:"#94a3b8",fontSize:11}},"\u2014")),
+              React.createElement("td",{style:tdStyle},React.createElement("span",{className:"badge",style:{background:STATUS_BG[st.status||"Not Started"],color:STATUS_COLORS[st.status||"Not Started"]}},st.status||"Not Started")),
+              React.createElement("td",{style:{...tdStyle,fontSize:11,color:"#64748b",maxWidth:160}},s.poc||"\u2014"),
+              React.createElement("td",{style:{...tdStyle,fontSize:9,color:"#475569",maxWidth:160}},prods||"\u2014"),
+              React.createElement("td",{style:{...tdStyle,fontSize:10,color:s.notes?"#b45309":"#94a3b8",maxWidth:120}},s.notes||"\u2014"),
+              React.createElement("td",{style:{...tdStyle,textAlign:"center"}},
+                React.createElement("a",{href:gEarthLink(s),target:"_blank",rel:"noopener noreferrer",onClick:e=>e.stopPropagation(),
+                  style:{display:"inline-flex",alignItems:"center",justifyContent:"center",width:30,height:30,borderRadius:6,background:"#dcfce7",color:"#166534",fontWeight:700,fontSize:13,textDecoration:"none",border:"1px solid #bbf7d0"},title:"Open in Google Earth"},"\uD83C\uDF0E")))
+          })))));
+}
+
+/* ═══ MAIN APP ═══ */
+function App(){
+  const[tab,setTab]=useState("Map & Routes");
+  const[settings,setSettings]=useState(defaultSettings);
+  const[siteState,setSiteState]=useState({});
+  const[assignments,setAssignments]=useState(()=>{const a={};INIT_SITES.forEach(s=>{a[s.id]="unassigned"});return a});
+  const[selected,setSelected]=useState(null);
+  const[crewFilter,setCrewFilter]=useState("all");
+  const[showSettings,setShowSettings]=useState(false);
+  const TABS=["Map & Routes","All Sites","Weekly Schedule","Route Details","Timeline","Status Tracker","Print / Export"];
+  const nCrews=settings.crewCount;
+
+  const[ganttOverrides,setGanttOverrides]=useState({});
+  const[saveStatus,setSaveStatus]=useState("");
+  const schedule=useMemo(()=>buildSchedule(INIT_SITES,assignments,settings,siteState),[assignments,settings,siteState]);
+
+  // Load saved routes on mount
+  useEffect(()=>{
+    try{
+      const saved=localStorage.getItem("hfmg_dashboard_state");
+      if(saved){
+        const d=JSON.parse(saved);
+        if(d.assignments)setAssignments(d.assignments);
+        if(d.siteState)setSiteState(d.siteState);
+        if(d.settings)setSettings(p=>({...p,...d.settings}));
+        if(d.ganttOverrides)setGanttOverrides(d.ganttOverrides);
+        setSaveStatus("Loaded saved routes");setTimeout(()=>setSaveStatus(""),2500);
+      }
+    }catch(e){}
+  },[]);
+
+  const saveRoutes=useCallback(()=>{
+    try{
+      const payload={assignments,siteState,settings,ganttOverrides,savedAt:new Date().toISOString()};
+      localStorage.setItem("hfmg_dashboard_state",JSON.stringify(payload));
+      setSaveStatus("\u2713 Saved");setTimeout(()=>setSaveStatus(""),2500);
+    }catch(e){setSaveStatus("Save failed");setTimeout(()=>setSaveStatus(""),2500)}
+  },[assignments,siteState,settings,ganttOverrides]);
+
+  const clearRoutes=useCallback(()=>{
+    if(confirm("Clear all route assignments? This will unassign every site. Your save file is not affected unless you Save again afterward."))
+      setAssignments(()=>{const a={};INIT_SITES.forEach(s=>{a[s.id]="unassigned"});return a});
+  },[]);
+
+  const exportRoutes=useCallback(()=>{
+    const payload={assignments,siteState,settings,ganttOverrides,exportedAt:new Date().toISOString()};
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);const a=document.createElement("a");
+    a.href=url;a.download="HFMG_Routes_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url);
+  },[assignments,siteState,settings,ganttOverrides]);
+
+  const importRoutes=useCallback((e)=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();r.onload=()=>{try{
+      const d=JSON.parse(r.result);
+      if(d.assignments)setAssignments(d.assignments);
+      if(d.siteState)setSiteState(d.siteState);
+      if(d.settings)setSettings(p=>({...p,...d.settings}));
+      if(d.ganttOverrides)setGanttOverrides(d.ganttOverrides);
+      setSaveStatus("\u2713 Imported");setTimeout(()=>setSaveStatus(""),2500);
+    }catch(err){alert("Invalid file")}};r.readAsText(f);e.target.value="";
+  },[]);
+
+  const totalQty=INIT_SITES.reduce((s,f)=>s+f.qty,0);
+  const assignedQty=INIT_SITES.filter(s=>typeof assignments[s.id]==="number").reduce((s,f)=>s+f.qty,0);
+  const pctAssigned=Math.round(assignedQty/totalQty*100);
+  const completedQty=INIT_SITES.filter(s=>s.qty>0&&siteState[s.id]?.status==="Completed").reduce((sum,s)=>sum+s.qty,0);
+  const pctComplete=Math.round(completedQty/totalQty*100);
+  const maxCrewDays=Math.max(...Object.values(schedule).map(d=>d.length),0);
+
+  return React.createElement("div",{style:{background:"var(--aa-bg)",minHeight:"100vh"}},
+    // ─── HEADER ───
+    React.createElement("div",{style:{background:"linear-gradient(135deg,#0a1628 0%,#1a2744 100%)",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between"}},
+      React.createElement("div",{style:{display:"flex",alignItems:"center",gap:16}},
+        React.createElement("div",{style:{background:"var(--aa-red)",color:"#fff",fontWeight:900,fontSize:16,padding:"6px 12px",borderRadius:4,letterSpacing:"0.05em"}},"AA"),
+        React.createElement("div",null,
+          React.createElement("div",{style:{fontSize:18,fontWeight:800,color:"#fff",letterSpacing:"-0.01em"}},"HFMG Scheduling & Routing"),
+          React.createElement("div",{style:{fontSize:11,color:"#94a3b8"}},"Kimberly-Clark Dispenser Installation \u2014 AA Installation LLC"))),
+      React.createElement("div",{style:{display:"flex",gap:8,alignItems:"center"}},
+        React.createElement("div",{style:{background:"rgba(255,255,255,0.07)",borderRadius:8,padding:"7px 14px",textAlign:"center",minWidth:85}},
+          React.createElement("div",{style:{fontSize:9,color:"#f59e0b",textTransform:"uppercase",fontWeight:700}},"Routed"),
+          React.createElement("div",{style:{fontSize:17,fontWeight:800,color:"#fff"}},pctAssigned+"%")),
+        React.createElement("div",{style:{background:"rgba(255,255,255,0.07)",borderRadius:8,padding:"7px 14px",textAlign:"center",minWidth:85}},
+          React.createElement("div",{style:{fontSize:9,color:"#34d399",textTransform:"uppercase",fontWeight:700}},"Done"),
+          React.createElement("div",{style:{fontSize:17,fontWeight:800,color:"#fff"}},pctComplete+"%")),
+        React.createElement("div",{style:{background:"rgba(255,255,255,0.07)",borderRadius:8,padding:"7px 14px",textAlign:"center",minWidth:85}},
+          React.createElement("div",{style:{fontSize:9,color:"#94a3b8",textTransform:"uppercase",fontWeight:700}},"Days"),
+          React.createElement("div",{style:{fontSize:17,fontWeight:800,color:"#fff"}},maxCrewDays)),
+        saveStatus&&React.createElement("div",{style:{fontSize:11,color:"#34d399",fontWeight:700,marginRight:4}},saveStatus),
+        React.createElement("button",{onClick:()=>setShowSettings(true),className:"btn",style:{background:"rgba(255,255,255,0.1)",color:"#fff",fontSize:12}},"\u2699 Settings"),
+        React.createElement("button",{onClick:saveRoutes,className:"btn btn-green",style:{fontSize:12},title:"Save routes to this browser"},"\ud83d\udcbe Save"),
+        React.createElement("button",{onClick:exportRoutes,className:"btn",style:{background:"rgba(255,255,255,0.1)",color:"#fff",fontSize:12},title:"Download routes as JSON"},"\u2b07 Export"),
+        React.createElement("label",{className:"btn",style:{background:"rgba(255,255,255,0.1)",color:"#fff",fontSize:12,cursor:"pointer",margin:0},title:"Load routes from JSON file"},"\u2b06 Import",
+          React.createElement("input",{type:"file",accept:".json",onChange:importRoutes,style:{display:"none"}})),
+        React.createElement("button",{onClick:clearRoutes,className:"btn btn-red",style:{fontSize:12},title:"Unassign every site"},"\u2715 Clear"))),
+    // ─── TAB BAR ───
+    React.createElement("div",{style:{background:"#0f1d32",padding:"0 24px",display:"flex",justifyContent:"space-between",alignItems:"center",overflowX:"auto"}},
+      React.createElement("div",{style:{display:"flex"}},TABS.map(t=>
+        React.createElement("button",{key:t,className:"tab-btn"+(tab===t?" active":""),onClick:()=>setTab(t)},t))),
+      (tab==="Map & Routes")&&React.createElement("div",{style:{display:"flex",gap:8,padding:"8px 0"}},
+        React.createElement("select",{value:crewFilter,onChange:e=>setCrewFilter(e.target.value),style:{background:"rgba(255,255,255,0.1)",color:"#fff",border:"1px solid rgba(255,255,255,0.2)"}},
+          React.createElement("option",{value:"all",style:{color:"#1e293b"}},"All Crews"),
+          Array.from({length:nCrews}).map((_,i)=>React.createElement("option",{key:i,value:i,style:{color:"#1e293b"}},settings.crewNames[i]))))),
+    // ─── KPIs ───
+    React.createElement("div",{style:{padding:"12px 24px",display:"flex",gap:10,overflowX:"auto"}},
+      Array.from({length:nCrews}).map((_,ci)=>{
+        const cs=INIT_SITES.filter(s=>assignments[s.id]===ci);const cq=cs.reduce((s,x)=>s+x.qty,0);
+        const compSites=cs.filter(s=>siteState[s.id]?.status==="Completed").length;
+        return React.createElement("div",{key:ci,className:"kpi",style:{borderTop:"3px solid "+COLORS[ci]}},
+          React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
+            React.createElement("span",{style:{fontSize:13,color:COLORS[ci],fontWeight:700}},settings.crewNames[ci]),
+            React.createElement("span",{style:{fontSize:10,color:"#94a3b8"}},cs.length+" sites")),
+          React.createElement("div",{style:{fontSize:22,fontWeight:800,margin:"3px 0"}},fmt(cq)),
+          React.createElement("div",{className:"progress-bar",style:{marginTop:4}},
+            React.createElement("div",{className:"progress-fill",style:{width:(cs.length?Math.round(compSites/cs.length*100):0)+"%",background:COLORS[ci]}})),
+          React.createElement("div",{style:{fontSize:10,color:"#64748b",marginTop:3}},compSites+"/"+cs.length+" complete \u00b7 "+(schedule[ci]||[]).length+"d"))
+      }),
+      React.createElement("div",{className:"kpi",style:{borderTop:"3px solid #94a3b8"}},
+        React.createElement("div",{style:{fontSize:13,color:"#94a3b8",fontWeight:700}},"Unassigned"),
+        React.createElement("div",{style:{fontSize:22,fontWeight:800,margin:"3px 0"}},fmt(totalQty-assignedQty)),
+        React.createElement("div",{style:{fontSize:10,color:"#64748b"}},INIT_SITES.filter(s=>assignments[s.id]==="unassigned"||assignments[s.id]===undefined).length+" sites"))),
+    // ─── CONTENT ───
+    React.createElement("div",{style:{padding:"0 24px 24px"}},
+      tab==="Map & Routes"&&React.createElement(RouteMap,{sites:INIT_SITES,assignments,nCrews,schedule,onSelect:setSelected,crewFilter,settings,siteState}),
+      tab==="All Sites"&&React.createElement(AllSites,{sites:INIT_SITES,assignments,nCrews,settings,siteState,onSelect:setSelected}),
+      tab==="Weekly Schedule"&&React.createElement(WeeklySchedule,{schedule,nCrews,assignments,setAssignments,sites:INIT_SITES,settings,siteState}),
+      tab==="Route Details"&&React.createElement(RouteDetail,{schedule,nCrews,settings,siteState}),
+      tab==="Timeline"&&React.createElement(ProjectTimeline,{schedule,nCrews,settings,ganttOverrides,setGanttOverrides,sites:INIT_SITES,assignments}),
+      tab==="Status Tracker"&&React.createElement(StatusTracker,{sites:INIT_SITES,siteState,setSiteState,assignments,nCrews,settings}),
+      tab==="Print / Export"&&React.createElement(PrintView,{schedule,nCrews,settings,siteState,sites:INIT_SITES,assignments})),
+    // ─── DETAIL PANEL ───
+    selected&&React.createElement(DetailPanel,{site:selected,assignments,setAssignments,nCrews,settings,siteState,setSiteState,onClose:()=>setSelected(null)}),
+    // ─── SETTINGS MODAL ───
+    showSettings&&React.createElement(SettingsModal,{settings,setSettings,onClose:()=>setShowSettings(false)}));
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
