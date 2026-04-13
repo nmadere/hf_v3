@@ -55,56 +55,55 @@ select:focus,input:focus{border-color:var(--aa-blue)}
 <script type="text/babel">
 const {useState,useMemo,useCallback,useEffect,useRef}=React;
 const INIT_SITES=[
-{id:1,name:"First Flight Crew Quarters",region:"North",address:"51 Bristow Way",qty:0,poc:"Robert Spivey",lat:28.411,lng:-80.764,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
-{id:2,name:"First Flight Hanger",region:"North",address:"55 Bristow Way",qty:0,poc:"Robert Spivey",lat:28.412,lng:-80.765,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
-{id:3,name:"HFMG - MOSM-Ortho / Pain",region:"HRMC",address:"205 E Nasa Blvd.",qty:6,poc:"Christa Guy",lat:28.0763,lng:-80.6184,scottfold:0,eScottPro:6,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
-{id:4,name:"HFMG Primary Care",region:"South",address:"220 N. Sykes Creek Pkwy., Suite 300",qty:50,poc:"Nicole Block",lat:28.1194,lng:-80.6352,scottfold:0,eScottPro:37,mScottPro:0,slimroll:0,quad:0,sideBySide:13,vertical:0,spindles:0,notes:""},
-{id:5,name:"PT / Hospice / 3rd party tenant",region:"North",address:"220 S Courtenay Pkwy.",qty:8,poc:"Paulette Swanson",lat:28.0874,lng:-80.6225,scottfold:0,eScottPro:8,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
-{id:6,name:"HFMG",region:"North",address:"325 S. Courtenay Pkwy 101-107",qty:2,poc:"Stephanie Scott / Dan Norfolk / Regina Frederick",lat:28.0856,lng:-80.6238,scottfold:0,eScottPro:2,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
-{id:7,name:"William Childs Hospice",region:"PBH",address:"381 Medplex Pkwy. NE",qty:0,poc:"Paula Ludwig",lat:28.0122,lng:-80.6228,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"Up the Street"},
-{id:8,name:"Melbourne Pro-Health/Foundation/Childcare",region:"HRMC",address:"611 E. Sheridan Rd.",qty:64,poc:"Darren Hill / Paulette Swanson",lat:28.0889,lng:-80.6068,scottfold:0,eScottPro:40,mScottPro:0,slimroll:0,quad:0,sideBySide:13,vertical:11,spindles:0,notes:""},
-{id:9,name:"CCH MOB",region:"CCH",address:"699 W Cocoa Beach Cswy.",qty:178,poc:"Nancy Bosio Pickett",lat:28.3473,lng:-80.7297,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"Buildings Connected"},
-{id:10,name:"Cape Canaveral Hospital",region:"CCH",address:"701 W Cocoa Beach Cswy.",qty:290,poc:"Nancy Bosio Pickett",lat:28.3478,lng:-80.7302,scottfold:16,eScottPro:271,mScottPro:4,slimroll:0,quad:62,sideBySide:103,vertical:11,spindles:22,notes:"Buildings Connected"},
-{id:11,name:"East Modular Building",region:"PBH",address:"730 Malabar Rd.",qty:14,poc:"Stephanie Scott / Jeanne Fiedor / Karen Montalavo / Samantha Baez / Christa Guy",lat:28.0144,lng:-80.6133,scottfold:0,eScottPro:0,mScottPro:14,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"Up the Street"},
-{id:12,name:"HFMG Cancer Center",region:"HRMC",address:"1130 Hickory St. Bldg B",qty:129,poc:"Robert Crosby / Mary Garcia / Stephanie Scott / Joleen Sorensen",lat:28.0951,lng:-80.612,scottfold:0,eScottPro:31,mScottPro:37,slimroll:37,quad:20,sideBySide:2,vertical:2,spindles:0,notes:""},
-{id:13,name:"HF Hospice/Bright Star/DME",region:"South",address:"1131 W. New Haven",qty:10,poc:"Paula Ludwig / Erika Barnes",lat:28.0775,lng:-80.633,scottfold:0,eScottPro:8,mScottPro:0,slimroll:2,quad:0,sideBySide:0,vertical:0,spindles:12,notes:""},
-{id:14,name:"HFMG Indialantic-Family Practice",region:"South",address:"1220 Hwy A1A",qty:5,poc:"Stephanie Scott / Jeanne Fiedor",lat:28.0906,lng:-80.566,scottfold:0,eScottPro:5,mScottPro:0,slimroll:0,quad:5,sideBySide:0,vertical:0,spindles:0,notes:""},
-{id:15,name:"HFMG Gateway",region:"Gateway",address:"1223 Gateway Dr.",qty:186,poc:"Janis Provoncha / Cindy Reese / Alicia Stellato / Shannon Cole / Karen Montalvo",lat:28.0768,lng:-80.6619,scottfold:1,eScottPro:95,mScottPro:0,slimroll:0,quad:89,sideBySide:1,vertical:0,spindles:0,notes:""},
-{id:16,name:"HFMG EP Drs Fulton & Bredikis",region:"HRMC",address:"1251 Hickory St.",qty:19,poc:"Bridget Cunningham",lat:28.0958,lng:-80.6112,scottfold:0,eScottPro:14,mScottPro:0,slimroll:0,quad:0,sideBySide:5,vertical:0,spindles:5,notes:""},
-{id:17,name:"HFMG Oncology",region:"South",address:"1264 Malabar Rd. SE",qty:9,poc:"Stephanie Scott / Robert Crosby",lat:28.0134,lng:-80.6108,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:2,vertical:3,spindles:0,notes:"3 Minutes Away"},
-{id:18,name:"Sleep Center",region:"HRMC",address:"1301 Hickory St",qty:8,poc:"Jessica Lutz / Nikkita Issah",lat:28.0963,lng:-80.6107,scottfold:0,eScottPro:5,mScottPro:0,slimroll:0,quad:0,sideBySide:3,vertical:0,spindles:0,notes:""},
-{id:19,name:"Holmes Regional Medical Center",region:"HRMC",address:"1350 Hickory St.",qty:1898,poc:"Mona Simon",lat:28.0975,lng:-80.6098,scottfold:0,eScottPro:1291,mScottPro:19,slimroll:0,quad:112,sideBySide:453,vertical:23,spindles:161,notes:""},
-{id:20,name:"CEP Bldg (1317 Oak St)",region:"HRMC",address:"1317 Oak St",qty:0,poc:"JP Labarge",lat:28.096,lng:-80.6091,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"COUNTS IN ROW 17"},
-{id:21,name:"First Flight / Airport Hangar",region:"North",address:"1377 General Aviation Dr.",qty:6,poc:"Robert Spivey",lat:28.1021,lng:-80.645,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:2,vertical:0,spindles:0,notes:""},
-{id:22,name:"Palm Bay POB",region:"PBH",address:"1421 Malabar Rd.",qty:61,poc:"Jaycee Harmon",lat:28.0148,lng:-80.6054,scottfold:0,eScottPro:50,mScottPro:0,slimroll:0,quad:0,sideBySide:11,vertical:0,spindles:0,notes:"Same Parking Lot"},
-{id:23,name:"Palm Bay Hospital",region:"PBH",address:"1425 Malabar Rd.",qty:222,poc:"Jaycee Harmon",lat:28.0151,lng:-80.6048,scottfold:0,eScottPro:77,mScottPro:0,slimroll:0,quad:32,sideBySide:113,vertical:0,spindles:1,notes:"Same Parking Lot"},
-{id:24,name:"HF Facilities",region:"South",address:"1575 W Nasa Blvd.",qty:9,poc:"Timothy Schultz",lat:28.0716,lng:-80.6414,scottfold:0,eScottPro:6,mScottPro:0,slimroll:0,quad:0,sideBySide:3,vertical:0,spindles:0,notes:""},
-{id:25,name:"HFMG Primary Care/Urgent Care",region:"South",address:"1810 Eldron Blvd",qty:50,poc:"Stephanie Scott / Theresa Ward / Jeanne Fiedor",lat:28.0508,lng:-80.5964,scottfold:0,eScottPro:41,mScottPro:0,slimroll:0,quad:0,sideBySide:9,vertical:0,spindles:0,notes:""},
-{id:26,name:"HFMG (1846 US Hwy 1)",region:"South",address:"1846 US Hwy 1",qty:57,poc:"Theresa Diamantis",lat:28.0782,lng:-80.6225,scottfold:0,eScottPro:47,mScottPro:0,slimroll:0,quad:0,sideBySide:10,vertical:0,spindles:0,notes:"GP Enmotion + GP Compact TP"},
-{id:27,name:"HFMG Royal Oaks - Titusville",region:"South",address:"1855 Knox McRae Drive",qty:12,poc:"Stephanie Scott / Debbie Pierson",lat:28.5748,lng:-80.8208,scottfold:0,eScottPro:0,mScottPro:7,slimroll:0,quad:0,sideBySide:5,vertical:0,spindles:0,notes:""},
-{id:28,name:"Crane Creek - ASC / HFMG",region:"South",address:"2222 S Harbour City Blvd",qty:92,poc:"Janenne Smith / Rachel Lewis / Ally McCain",lat:28.0667,lng:-80.6185,scottfold:0,eScottPro:82,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:10,spindles:41,notes:""},
-{id:29,name:"HFMG (Vidina Dr. Bldg 2)",region:"VH",address:"2325 Vidina Dr. Bldg 2",qty:40,poc:"Eileen Gebbia",lat:28.2407,lng:-80.726,scottfold:22,eScottPro:8,mScottPro:2,slimroll:0,quad:0,sideBySide:8,vertical:0,spindles:0,notes:"Across the street"},
-{id:30,name:"HFMG (Medico Lane)",region:"VH",address:"2329 Medico Lane",qty:38,poc:"Janis Provoncha",lat:28.2413,lng:-80.727,scottfold:0,eScottPro:0,mScottPro:14,slimroll:1,quad:0,sideBySide:4,vertical:0,spindles:0,notes:"Across the street"},
-{id:31,name:"HF Business Center, Building A",region:"North",address:"3300 Fiske Blvd.",qty:72,poc:"Rosalind Dade",lat:28.1205,lng:-80.639,scottfold:0,eScottPro:31,mScottPro:0,slimroll:1,quad:0,sideBySide:40,vertical:0,spindles:0,notes:""},
-{id:32,name:"HFMG Bayside Bldg, Suite 110",region:"South",address:"3425 Bayside Lakes Blvd. SE",qty:7,poc:"Cindy Reese",lat:27.9855,lng:-80.5926,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:3,vertical:0,spindles:0,notes:""},
-{id:33,name:"HF HR Operations (3442)",region:"South",address:"3442 N Harbor City Blvd.",qty:0,poc:"Amber Wilhelm",lat:28.0665,lng:-80.619,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"with 3470"},
-{id:34,name:"HF Center for Learning (Rivercrest)/HR",region:"South",address:"3470 N Harbor City Blvd.",qty:33,poc:"Amber Wilhelm",lat:28.067,lng:-80.6192,scottfold:0,eScottPro:15,mScottPro:0,slimroll:0,quad:0,sideBySide:18,vertical:0,spindles:0,notes:""},
-{id:35,name:"HF HR Operations (3506)",region:"South",address:"3506 N Harbor City Blvd.",qty:0,poc:"Amber Wilhelm",lat:28.0675,lng:-80.6195,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"with 3470"},
-{id:36,name:"HF Homecare & Private Duty",region:"South",address:"3566 N Harbor City Blvd. (3566-3594)",qty:6,poc:"Nikki Evans",lat:28.068,lng:-80.6198,scottfold:0,eScottPro:6,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
-{id:37,name:"HFMG Aging Building",region:"South",address:"3661 S Babcock St.",qty:2,poc:"Ally Beasy / Joyce Kennedy / Sandra Stauffer",lat:28.0588,lng:-80.6138,scottfold:0,eScottPro:2,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:2,notes:"Moving from facility 2026"},
-{id:38,name:"Surgery Center",region:"South",address:"5191 Babcock St. NE",qty:28,poc:"?",lat:28.0192,lng:-80.6087,scottfold:5,eScottPro:17,mScottPro:0,slimroll:0,quad:0,sideBySide:6,vertical:0,spindles:0,notes:""},
-{id:39,name:"PB Rehab",region:"South",address:"5200 Babcock St. NE Suite 109",qty:5,poc:"Jessica Lutz / Paulette Swanson",lat:28.0188,lng:-80.6083,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:1,vertical:0,spindles:0,notes:""},
-{id:40,name:"HF Corporate Bldg",region:"North",address:"6450 Hwy 1",qty:24,poc:"",lat:28.1935,lng:-80.671,scottfold:0,eScottPro:3,mScottPro:0,slimroll:0,quad:0,sideBySide:21,vertical:0,spindles:21,notes:""},
-{id:41,name:"HFMG (6525 Third St.)",region:"North",address:"6525 Third St. Suite 302/303",qty:2,poc:"Anne-Marie Reynolds",lat:28.198,lng:-80.6718,scottfold:0,eScottPro:1,mScottPro:0,slimroll:0,quad:0,sideBySide:1,vertical:0,spindles:1,notes:""},
-{id:42,name:"HFMG ICP",region:"North",address:"7000 Spyglass Ct.",qty:10,poc:"Allie Beasy",lat:28.2235,lng:-80.6915,scottfold:0,eScottPro:0,mScottPro:0,slimroll:10,quad:0,sideBySide:0,vertical:0,spindles:2,notes:""},
-{id:43,name:"HFMG Physicians Viera",region:"North",address:"7125 Murrell Rd.",qty:139,poc:"Kelli Romay / LuAnne Regan / Lori Lynn Moore / Stephanie Scott / Jeanne Fiedor",lat:28.2454,lng:-80.7178,scottfold:0,eScottPro:93,mScottPro:13,slimroll:0,quad:0,sideBySide:9,vertical:5,spindles:12,notes:""},
-{id:44,name:"HF Distribution Ctr, Suite 103",region:"North",address:"7195 Waelti Dr.",qty:5,poc:"Brian Dilonardo",lat:28.251,lng:-80.72,scottfold:0,eScottPro:5,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:3,notes:""},
-{id:45,name:"Viera Pro Health",region:"VH",address:"8705 N Wickham Rd.",qty:38,poc:"Jessica Lutz / Matthew Duffy",lat:28.2605,lng:-80.7282,scottfold:0,eScottPro:11,mScottPro:0,slimroll:0,quad:18,sideBySide:3,vertical:0,spindles:0,notes:"Buildings Connected"},
-{id:46,name:"Viera Medical Plaza",region:"VH",address:"8725 N Wickham Rd.",qty:178,poc:"Kelli Romay / Stephanie Scott / Dan Norfolk / Crystal Hoffman",lat:28.2612,lng:-80.7285,scottfold:0,eScottPro:76,mScottPro:0,slimroll:0,quad:21,sideBySide:1,vertical:22,spindles:0,notes:"Buildings Connected"},
-{id:47,name:"Viera Hospital",region:"VH",address:"8745 N Wickham Rd.",qty:637,poc:"John Michaels",lat:28.262,lng:-80.729,scottfold:0,eScottPro:417,mScottPro:0,slimroll:0,quad:59,sideBySide:16,vertical:109,spindles:0,notes:"Buildings Connected"},
-{id:48,name:"HFMG (E. Eau Gallie Blvd.)",region:"South",address:"216-218 E. Eau Gallie Blvd.",qty:24,poc:"Allie Beasy",lat:28.1175,lng:-80.6058,scottfold:0,eScottPro:20,mScottPro:0,slimroll:0,quad:0,sideBySide:4,vertical:0,spindles:0,notes:""},
-{id:49,name:"HF HR Operations (3462-3466)",region:"South",address:"3462-3466 N Harbor City Blvd.",qty:0,poc:"Amber Wilhelm",lat:28.0668,lng:-80.6191,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"with 3470"},
-{id:50,name:"HF Regency Park",region:"HRMC",address:"1340 Medical Park Drive",qty:2,poc:"",lat:28.097,lng:-80.6095,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""}
+{id:1,name:"First Flight Crew Quarters",region:"North",address:"51 Bristow Way",qty:0,poc:"Robert Spivey",lat:28.5114526,lng:-80.7932763,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:2,name:"First Flight Hanger",region:"North",address:"55 Bristow Way",qty:0,poc:"Robert Spivey",lat:28.5108217,lng:-80.7935034,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:3,name:"HFMG - MOSM-Ortho / Pain",region:"HRMC",address:"205 E Nasa Blvd.",qty:6,poc:"Christa Guy",lat:28.0928805,lng:-80.6172545,scottfold:0,eScottPro:6,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:4,name:"HFMG Primary Care",region:"South",address:"220 N. Sykes Creek Pkwy., Suite 300",qty:50,poc:"Nicole Block",lat:28.3600811,lng:-80.6835477,scottfold:0,eScottPro:37,mScottPro:0,slimroll:0,quad:0,sideBySide:13,vertical:0,spindles:0,notes:""},
+{id:5,name:"PT / Hospice / 3rd party tenant",region:"North",address:"220 S Courtenay Pkwy.",qty:8,poc:"Paulette Swanson",lat:28.353853,lng:-80.6996487,scottfold:0,eScottPro:8,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:6,name:"HFMG",region:"North",address:"325 S. Courtenay Pkwy 101-107",qty:2,poc:"Stephanie Scott / Dan Norfolk / Regina Frederick",lat:28.3520926,lng:-80.7006479,scottfold:0,eScottPro:2,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:7,name:"William Childs Hospice",region:"PBH",address:"381 Medplex Pkwy. NE",qty:0,poc:"Paula Ludwig",lat:28.00503,lng:-80.6125028,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"Up the Street"},
+{id:8,name:"Melbourne Pro-Health/Foundation/Childcare",region:"HRMC",address:"611 E. Sheridan Rd.",qty:64,poc:"Darren Hill / Paulette Swanson",lat:28.0880848,lng:-80.6116964,scottfold:0,eScottPro:40,mScottPro:0,slimroll:0,quad:0,sideBySide:13,vertical:11,spindles:0,notes:""},
+{id:9,name:"CCH MOB",region:"CCH",address:"699 W Cocoa Beach Cswy.",qty:178,poc:"Nancy Bosio Pickett",lat:28.3600642,lng:-80.622997,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"Buildings Connected"},
+{id:10,name:"Cape Canaveral Hospital",region:"CCH",address:"701 W Cocoa Beach Cswy.",qty:290,poc:"Nancy Bosio Pickett",lat:28.3600642,lng:-80.622997,scottfold:16,eScottPro:271,mScottPro:4,slimroll:0,quad:62,sideBySide:103,vertical:11,spindles:22,notes:"Buildings Connected"},
+{id:11,name:"East Modular Building",region:"PBH",address:"730 Malabar Rd.",qty:14,poc:"Stephanie Scott / Jeanne Fiedor / Karen Montalavo / Samantha Baez / Christa Guy",lat:28.0011352,lng:-80.6087464,scottfold:0,eScottPro:0,mScottPro:14,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"Up the Street"},
+{id:12,name:"HFMG Cancer Center",region:"HRMC",address:"1130 Hickory St. Bldg B",qty:129,poc:"Robert Crosby / Mary Garcia / Stephanie Scott / Joleen Sorensen",lat:28.0904428,lng:-80.6147391,scottfold:0,eScottPro:31,mScottPro:37,slimroll:37,quad:20,sideBySide:2,vertical:2,spindles:0,notes:""},
+{id:13,name:"HF Hospice/Bright Star/DME",region:"South",address:"1131 W. New Haven",qty:10,poc:"Paula Ludwig / Erika Barnes",lat:28.0778271,lng:-80.639542,scottfold:0,eScottPro:8,mScottPro:0,slimroll:2,quad:0,sideBySide:0,vertical:0,spindles:12,notes:""},
+{id:14,name:"HFMG Indialantic-Family Practice",region:"South",address:"1220 Hwy A1A",qty:5,poc:"Stephanie Scott / Jeanne Fiedor",lat:28.0658486,lng:-80.5563602,scottfold:0,eScottPro:5,mScottPro:0,slimroll:0,quad:5,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:15,name:"HFMG Gateway",region:"Gateway",address:"1223 Gateway Dr.",qty:186,poc:"Janis Provoncha / Cindy Reese / Alicia Stellato / Shannon Cole / Karen Montalvo",lat:28.0893343,lng:-80.6497444,scottfold:1,eScottPro:95,mScottPro:0,slimroll:0,quad:89,sideBySide:1,vertical:0,spindles:0,notes:""},
+{id:16,name:"HFMG EP Drs Fulton & Bredikis",region:"HRMC",address:"1251 Hickory St.",qty:19,poc:"Bridget Cunningham",lat:28.0896606,lng:-80.6131453,scottfold:0,eScottPro:14,mScottPro:0,slimroll:0,quad:0,sideBySide:5,vertical:0,spindles:5,notes:""},
+{id:17,name:"HFMG Oncology",region:"South",address:"1264 Malabar Rd. SE",qty:9,poc:"Stephanie Scott / Robert Crosby",lat:27.9981754,lng:-80.6237521,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:2,vertical:3,spindles:0,notes:"3 Minutes Away"},
+{id:18,name:"Sleep Center",region:"HRMC",address:"1301 Hickory St",qty:8,poc:"Jessica Lutz / Nikkita Issah",lat:28.0885098,lng:-80.613342,scottfold:0,eScottPro:5,mScottPro:0,slimroll:0,quad:0,sideBySide:3,vertical:0,spindles:0,notes:""},
+{id:19,name:"Holmes Regional Medical Center",region:"HRMC",address:"1350 Hickory St.",qty:1898,poc:"Mona Simon",lat:28.0874342,lng:-80.6143731,scottfold:0,eScottPro:1291,mScottPro:19,slimroll:0,quad:112,sideBySide:453,vertical:23,spindles:161,notes:""},
+{id:20,name:"CEP Bldg (1317 Oak St)",region:"HRMC",address:"1317 Oak St",qty:0,poc:"JP Labarge",lat:28.0894709,lng:-80.6140018,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"COUNTS IN ROW 17"},
+{id:21,name:"First Flight / Airport Hangar",region:"North",address:"1377 General Aviation Dr.",qty:6,poc:"Robert Spivey",lat:28.108272,lng:-80.6480411,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:2,vertical:0,spindles:0,notes:""},
+{id:22,name:"Palm Bay POB",region:"PBH",address:"1421 Malabar Rd.",qty:61,poc:"Jaycee Harmon",lat:27.9996758,lng:-80.6113564,scottfold:0,eScottPro:50,mScottPro:0,slimroll:0,quad:0,sideBySide:11,vertical:0,spindles:0,notes:"Same Parking Lot"},
+{id:23,name:"Palm Bay Hospital",region:"PBH",address:"1425 Malabar Rd.",qty:222,poc:"Jaycee Harmon",lat:28.0000513,lng:-80.611808,scottfold:0,eScottPro:77,mScottPro:0,slimroll:0,quad:32,sideBySide:113,vertical:0,spindles:1,notes:"Same Parking Lot"},
+{id:24,name:"HF Facilities",region:"South",address:"1575 W Nasa Blvd.",qty:9,poc:"Timothy Schultz",lat:28.0919511,lng:-80.6478958,scottfold:0,eScottPro:6,mScottPro:0,slimroll:0,quad:0,sideBySide:3,vertical:0,spindles:0,notes:""},
+{id:25,name:"HFMG Primary Care/Urgent Care",region:"South",address:"1810 Eldron Blvd",qty:50,poc:"Stephanie Scott / Theresa Ward / Jeanne Fiedor",lat:27.9507339,lng:-80.6600463,scottfold:0,eScottPro:41,mScottPro:0,slimroll:0,quad:0,sideBySide:9,vertical:0,spindles:0,notes:""},
+{id:26,name:"HFMG (1846 US Hwy 1)",region:"South",address:"1846 US Hwy 1",qty:57,poc:"Theresa Diamantis",lat:28.3293722,lng:-80.7194061,scottfold:0,eScottPro:47,mScottPro:0,slimroll:0,quad:0,sideBySide:10,vertical:0,spindles:0,notes:"GP Enmotion + GP Compact TP"},
+{id:27,name:"HFMG Royal Oaks - Titusville",region:"South",address:"1855 Knox McRae Drive",qty:12,poc:"Stephanie Scott / Debbie Pierson",lat:28.5714881,lng:-80.8231851,scottfold:0,eScottPro:0,mScottPro:7,slimroll:0,quad:0,sideBySide:5,vertical:0,spindles:0,notes:""},
+{id:28,name:"Crane Creek - ASC / HFMG",region:"South",address:"2222 S Harbour City Blvd",qty:92,poc:"Janenne Smith / Rachel Lewis / Ally McCain",lat:28.0760889,lng:-80.602406,scottfold:0,eScottPro:82,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:10,spindles:41,notes:""},
+{id:29,name:"HFMG (Vidina Dr. Bldg 2)",region:"VH",address:"2325 Vidina Dr. Bldg 2",qty:40,poc:"Eileen Gebbia",lat:28.2256053,lng:-80.7275743,scottfold:22,eScottPro:8,mScottPro:2,slimroll:0,quad:0,sideBySide:8,vertical:0,spindles:0,notes:"Across the street"},
+{id:30,name:"HFMG (Medico Lane)",region:"VH",address:"2329 Medico Lane",qty:38,poc:"Janis Provoncha",lat:28.2316501,lng:-80.731682,scottfold:0,eScottPro:0,mScottPro:14,slimroll:1,quad:0,sideBySide:4,vertical:0,spindles:0,notes:"Across the street"},
+{id:31,name:"HF Business Center, Building A",region:"North",address:"3300 Fiske Blvd.",qty:72,poc:"Rosalind Dade",lat:28.3046003,lng:-80.7417089,scottfold:0,eScottPro:31,mScottPro:0,slimroll:1,quad:0,sideBySide:40,vertical:0,spindles:0,notes:""},
+{id:32,name:"HFMG Bayside Bldg, Suite 110",region:"South",address:"3425 Bayside Lakes Blvd. SE",qty:7,poc:"Cindy Reese",lat:27.9503939,lng:-80.6560484,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:3,vertical:0,spindles:0,notes:""},
+{id:33,name:"HF HR Operations (3442)",region:"South",address:"3442 N Harbor City Blvd.",qty:0,poc:"Amber Wilhelm",lat:28.1636232,lng:-80.6436588,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"with 3470"},
+{id:34,name:"HF Center for Learning (Rivercrest)/HR",region:"South",address:"3470 N Harbor City Blvd.",qty:33,poc:"Amber Wilhelm",lat:28.1638557,lng:-80.6439558,scottfold:0,eScottPro:15,mScottPro:0,slimroll:0,quad:0,sideBySide:18,vertical:0,spindles:0,notes:""},
+{id:35,name:"HF HR Operations (3506)",region:"South",address:"3506 N Harbor City Blvd.",qty:0,poc:"Amber Wilhelm",lat:28.1638846,lng:-80.6437443,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"with 3470"},
+{id:36,name:"HF Homecare & Private Duty",region:"South",address:"3566 N Harbor City Blvd. (3566-3594)",qty:6,poc:"Nikki Evans",lat:28.1639084,lng:-80.6440401,scottfold:0,eScottPro:6,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:""},
+{id:37,name:"HFMG Aging Building",region:"South",address:"3661 S Babcock St.",qty:2,poc:"Ally Beasy / Joyce Kennedy / Sandra Stauffer",lat:28.0543289,lng:-80.6200538,scottfold:0,eScottPro:2,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:2,notes:"Moving from facility 2026"},
+{id:38,name:"Surgery Center",region:"South",address:"5191 Babcock St. NE",qty:28,poc:"?",lat:28.0212022,lng:-80.6215452,scottfold:5,eScottPro:17,mScottPro:0,slimroll:0,quad:0,sideBySide:6,vertical:0,spindles:0,notes:""},
+{id:39,name:"PB Rehab",region:"South",address:"5200 Babcock St. NE Suite 109",qty:5,poc:"Jessica Lutz / Paulette Swanson",lat:28.021286,lng:-80.6227433,scottfold:0,eScottPro:4,mScottPro:0,slimroll:0,quad:0,sideBySide:1,vertical:0,spindles:0,notes:""},
+{id:40,name:"HF Corporate Bldg",region:"North",address:"6450 Hwy 1",qty:24,poc:"",lat:28.2329001,lng:-80.6753453,scottfold:0,eScottPro:3,mScottPro:0,slimroll:0,quad:0,sideBySide:21,vertical:0,spindles:21,notes:""},
+{id:41,name:"HFMG (6525 Third St.)",region:"North",address:"6525 Third St. Suite 302/303",qty:2,poc:"Anne-Marie Reynolds",lat:28.228653,lng:-80.6734819,scottfold:0,eScottPro:1,mScottPro:0,slimroll:0,quad:0,sideBySide:1,vertical:0,spindles:1,notes:""},
+{id:42,name:"HFMG ICP",region:"North",address:"7000 Spyglass Ct.",qty:10,poc:"Allie Beasy",lat:28.2379954,lng:-80.7121632,scottfold:0,eScottPro:0,mScottPro:0,slimroll:10,quad:0,sideBySide:0,vertical:0,spindles:2,notes:""},
+{id:43,name:"HFMG Physicians Viera",region:"North",address:"7125 Murrell Rd.",qty:139,poc:"Kelli Romay / LuAnne Regan / Lori Lynn Moore / Stephanie Scott / Jeanne Fiedor",lat:28.2365677,lng:-80.7122181,scottfold:0,eScottPro:93,mScottPro:13,slimroll:0,quad:0,sideBySide:9,vertical:5,spindles:12,notes:""},
+{id:44,name:"HF Distribution Ctr, Suite 103",region:"North",address:"7195 Waelti Dr.",qty:5,poc:"Brian Dilonardo",lat:28.2306245,lng:-80.6785745,scottfold:0,eScottPro:5,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:3,notes:""},
+{id:45,name:"Viera Pro Health",region:"VH",address:"8705 N Wickham Rd.",qty:38,poc:"Jessica Lutz / Matthew Duffy",lat:28.2282878,lng:-80.7271038,scottfold:0,eScottPro:11,mScottPro:0,slimroll:0,quad:18,sideBySide:3,vertical:0,spindles:0,notes:"Buildings Connected"},
+{id:46,name:"Viera Medical Plaza",region:"VH",address:"8725 N Wickham Rd.",qty:178,poc:"Kelli Romay / Stephanie Scott / Dan Norfolk / Crystal Hoffman",lat:28.2283374,lng:-80.7280635,scottfold:0,eScottPro:76,mScottPro:0,slimroll:0,quad:21,sideBySide:1,vertical:22,spindles:0,notes:"Buildings Connected"},
+{id:47,name:"Viera Hospital",region:"VH",address:"8745 N Wickham Rd.",qty:637,poc:"John Michaels",lat:28.2282316,lng:-80.7293673,scottfold:0,eScottPro:417,mScottPro:0,slimroll:0,quad:59,sideBySide:16,vertical:109,spindles:0,notes:"Buildings Connected"},
+{id:48,name:"HFMG (E. Eau Gallie Blvd.)",region:"South",address:"216-218 E. Eau Gallie Blvd.",qty:24,poc:"Allie Beasy",lat:28.1400677,lng:-80.5963707,scottfold:0,eScottPro:20,mScottPro:0,slimroll:0,quad:0,sideBySide:4,vertical:0,spindles:0,notes:""},
+{id:49,name:"HF HR Operations (3462-3466)",region:"South",address:"3462-3466 N Harbor City Blvd.",qty:0,poc:"Amber Wilhelm",lat:28.1636732,lng:-80.6436982,scottfold:0,eScottPro:0,mScottPro:0,slimroll:0,quad:0,sideBySide:0,vertical:0,spindles:0,notes:"with 3470"}
 ];
 
 const COLORS=["#1d4ed8","#059669","#d97706","#dc2626","#7c3aed"];
@@ -134,37 +133,110 @@ function defaultSettings(){
     maxDispensersPerDay:500,
     maxSitesPerDay:10,
     dispenserRate:15,
-    regionGrouping:true,
     travelTimeMin:20,
+    crewStartDates:{},
+    crewDayOverride:{},
+    crewSkipDays:{},
   }
 }
+function isoKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function advanceWorkday(d,skipList){d.setDate(d.getDate()+1);while(d.getDay()===0||d.getDay()===6||(skipList&&skipList.includes(isoKey(d))))d.setDate(d.getDate()+1);return d}
+function firstWorkday(d,skipList){const out=new Date(d);while(out.getDay()===0||out.getDay()===6||(skipList&&skipList.includes(isoKey(out))))out.setDate(out.getDate()+1);return out}
 
 /* ═══ ROUTING ENGINE ═══ */
+/* buildSchedule honors:
+   - siteState[id].lockedDay  : int 0-based, pins a site to a specific workday
+   - siteState[id].daySpan    : int >=1, how many consecutive days this site occupies
+   - settings.crewStartDates[ci]    : YYYY-MM-DD override of global start
+   - settings.crewDayOverride[ci]   : int, forces crew schedule to span N days
+   - settings.crewSkipDays[ci]      : array of YYYY-MM-DD strings to skip */
 function buildSchedule(sites,assignments,settings,siteState){
   const schedule={};const workHrs=settings.hrsPerDay-settings.lunchBreak;
   for(let ci=0;ci<settings.crewCount;ci++){
     const crewSites=sites.filter(s=>assignments[s.id]===ci);
-    // Respect day-locks: locked sites go to their locked day first
-    const locked=crewSites.filter(s=>siteState[s.id]?.lockedDay);
-    const unlocked=crewSites.filter(s=>!siteState[s.id]?.lockedDay);
-    const dayMap={};
-    locked.forEach(s=>{const dk=siteState[s.id].lockedDay;if(!dayMap[dk])dayMap[dk]=[];dayMap[dk].push(s)});
-    let dayIdx=0,dayHrs=0;const days=[];let currentDay=[];
-    unlocked.forEach((s,i)=>{
-      const hrs=estHrs(s,settings.dispenserRate)+(i>0?settings.travelTimeMin/60:0);
-      const wouldExceedSites=currentDay.length>=settings.maxSitesPerDay;
-      const wouldExceedQty=currentDay.reduce((sum,x)=>sum+x.qty,0)+s.qty>settings.maxDispensersPerDay;
-      if((dayHrs+hrs>workHrs||wouldExceedSites||wouldExceedQty)&&currentDay.length>0){
-        days.push(currentDay);currentDay=[];dayHrs=0}
-      currentDay.push({...s,estHrs:Math.round(hrs*10)/10});dayHrs+=hrs});
-    if(currentDay.length>0)days.push(currentDay);
-    // Merge locked days into schedule
-    const start=new Date(settings.startDate+"T00:00:00");
-    schedule[ci]=days.map((daySites,i)=>{
-      const d=new Date(start);let skip=0;
-      for(let j=0;j<=i+skip;j++){if(d.getDay()===0||d.getDay()===6){skip++;d.setDate(d.getDate()+1)}if(j<i+skip)d.setDate(d.getDate()+1)}
-      return{date:new Date(d),sites:daySites,totalQty:daySites.reduce((s,x)=>s+x.qty,0),
-        totalHrs:Math.round(daySites.reduce((s,x)=>s+(x.estHrs||estHrs(x,settings.dispenserRate)),0)*10)/10}});
+    const crewStart=(settings.crewStartDates&&settings.crewStartDates[ci])||settings.startDate;
+    const dayOverride=+((settings.crewDayOverride&&settings.crewDayOverride[ci])||0);
+    const skipDays=(settings.crewSkipDays&&settings.crewSkipDays[ci])||[];
+
+    // Split locked (pinned to a specific day) vs unlocked
+    const locked=[];const unlocked=[];
+    crewSites.forEach(s=>{
+      const st=siteState[s.id]||{};
+      const ld=st.lockedDay;
+      const span=Math.max(1,+(st.daySpan)||1);
+      if(typeof ld==="number"&&ld>=0)locked.push({site:s,day:ld,span});
+      else unlocked.push(s);
+    });
+
+    // Bucket locked sites by day index (multi-day sites appear in each spanned day)
+    const lockedBuckets={};
+    locked.forEach(({site,day,span})=>{
+      for(let d=day;d<day+span;d++){
+        if(!lockedBuckets[d])lockedBuckets[d]=[];
+        lockedBuckets[d].push({...site,_spanDay:d-day,_spanTotal:span})
+      }
+    });
+
+    // Pack unlocked sites
+    let packedDays=[];
+    if(dayOverride>0){
+      // Fixed day count: distribute unlocked round-robin into least-full day (by qty)
+      packedDays=Array.from({length:dayOverride},()=>[]);
+      unlocked.forEach(s=>{
+        let bestD=0,bestTotal=Infinity;
+        for(let d=0;d<dayOverride;d++){
+          const lockedQty=(lockedBuckets[d]||[]).reduce((sum,x)=>sum+x.qty,0);
+          const packedQty=packedDays[d].reduce((sum,x)=>sum+x.qty,0);
+          const total=lockedQty+packedQty;
+          if(total<bestTotal){bestTotal=total;bestD=d}
+        }
+        packedDays[bestD].push(s);
+      });
+    }else{
+      // Auto-pack by hour/site/qty limits
+      let cur=[],curHrs=0;
+      unlocked.forEach(s=>{
+        const hrs=estHrs(s,settings.dispenserRate)+(cur.length>0?settings.travelTimeMin/60:0);
+        const curQty=cur.reduce((sum,x)=>sum+x.qty,0);
+        const wouldExceed=(curHrs+hrs>workHrs)||(cur.length>=settings.maxSitesPerDay)||(curQty+s.qty>settings.maxDispensersPerDay);
+        if(wouldExceed&&cur.length>0){packedDays.push(cur);cur=[];curHrs=0}
+        cur.push(s);curHrs+=hrs;
+      });
+      if(cur.length>0)packedDays.push(cur);
+    }
+
+    // Determine final day count
+    const maxLockedDay=locked.length?Math.max(...locked.map(l=>l.day+l.span-1)):-1;
+    const totalDays=Math.max(maxLockedDay+1,packedDays.length,dayOverride,crewSites.length?1:0);
+
+    // Merge locked + packed per day
+    const finalDays=[];
+    if(dayOverride>0){
+      for(let d=0;d<totalDays;d++)finalDays.push([...(lockedBuckets[d]||[]),...(packedDays[d]||[])]);
+    }else{
+      const q=[...packedDays];
+      for(let d=0;d<totalDays;d++){
+        const lockedHere=lockedBuckets[d]||[];
+        const fromPack=q.length>0?q.shift():[];
+        finalDays.push([...lockedHere,...fromPack]);
+      }
+    }
+
+    // Generate calendar dates (skip weekends + per-crew skip days)
+    const start=firstWorkday(new Date(crewStart+"T00:00:00"),skipDays);
+    const dates=[];const cursor=new Date(start);
+    for(let i=0;i<finalDays.length;i++){
+      dates.push(new Date(cursor));
+      if(i<finalDays.length-1)advanceWorkday(cursor,skipDays);
+    }
+
+    schedule[ci]=finalDays.map((daySites,i)=>({
+      date:dates[i],
+      dayIndex:i,
+      sites:daySites.map((s,j)=>({...s,estHrs:Math.round((estHrs(s,settings.dispenserRate)+(j>0?settings.travelTimeMin/60:0))*10)/10})),
+      totalQty:daySites.reduce((sum,x)=>sum+x.qty,0),
+      totalHrs:Math.round(daySites.reduce((sum,x)=>sum+estHrs(x,settings.dispenserRate),0)*10)/10
+    }));
   }
   return schedule;
 }
@@ -188,10 +260,32 @@ function SettingsModal({settings,setSettings,onClose}){
             React.createElement("label",{className:"form-label"},"Number of Crews"),
             React.createElement("select",{value:local.crewCount,onChange:e=>upd("crewCount",+e.target.value),style:{width:"100%"}},
               [2,3,4,5].map(n=>React.createElement("option",{key:n,value:n},n+" Crews"))))),
-        Array.from({length:local.crewCount}).map((_,i)=>
-          React.createElement("div",{key:i,className:"form-group",style:{display:"flex",gap:8,alignItems:"center"}},
-            React.createElement("div",{style:{width:12,height:12,borderRadius:6,background:COLORS[i],flexShrink:0}}),
-            React.createElement("input",{type:"text",value:local.crewNames[i]||"Crew "+"ABCDE"[i],onChange:e=>{const n=[...local.crewNames];n[i]=e.target.value;upd("crewNames",n)},style:{flex:1}}))),
+        Array.from({length:local.crewCount}).map((_,i)=>{
+          const cs=(local.crewStartDates&&local.crewStartDates[i])||"";
+          const co=(local.crewDayOverride&&local.crewDayOverride[i])||"";
+          const csk=(local.crewSkipDays&&local.crewSkipDays[i])||[];
+          const setCS=(v)=>upd("crewStartDates",{...(local.crewStartDates||{}),[i]:v||undefined});
+          const setCO=(v)=>upd("crewDayOverride",{...(local.crewDayOverride||{}),[i]:v?+v:undefined});
+          const addSkip=(v)=>{if(!v)return;const nx={...(local.crewSkipDays||{})};nx[i]=[...(nx[i]||[]),v].filter((x,idx,a)=>a.indexOf(x)===idx).sort();upd("crewSkipDays",nx)};
+          const rmSkip=(v)=>{const nx={...(local.crewSkipDays||{})};nx[i]=(nx[i]||[]).filter(x=>x!==v);upd("crewSkipDays",nx)};
+          return React.createElement("div",{key:i,style:{padding:10,marginBottom:10,border:"1px solid #e2e8f0",borderRadius:6,borderLeft:"3px solid "+COLORS[i],background:"#fafafa"}},
+            React.createElement("div",{style:{display:"flex",gap:8,alignItems:"center",marginBottom:8}},
+              React.createElement("div",{style:{width:12,height:12,borderRadius:6,background:COLORS[i],flexShrink:0}}),
+              React.createElement("input",{type:"text",value:local.crewNames[i]||"Crew "+"ABCDE"[i],onChange:e=>{const n=[...local.crewNames];n[i]=e.target.value;upd("crewNames",n)},style:{flex:1}})),
+            React.createElement("div",{className:"form-row",style:{marginBottom:6}},
+              React.createElement("div",{className:"form-group",style:{marginBottom:0}},
+                React.createElement("label",{className:"form-label"},"Start Date (override)"),
+                React.createElement("input",{type:"date",value:cs,onChange:e=>setCS(e.target.value),style:{width:"100%"}})),
+              React.createElement("div",{className:"form-group",style:{marginBottom:0}},
+                React.createElement("label",{className:"form-label"},"# Days (override)"),
+                React.createElement("input",{type:"number",min:0,placeholder:"auto",value:co,onChange:e=>setCO(e.target.value),style:{width:"100%"}}))),
+            React.createElement("div",{className:"form-group",style:{marginBottom:0}},
+              React.createElement("label",{className:"form-label"},"Skip Days (blank/no-work)"),
+              React.createElement("div",{style:{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}},
+                React.createElement("input",{type:"date",onChange:e=>{addSkip(e.target.value);e.target.value=""},style:{flex:"0 0 auto"}}),
+                csk.map(d=>React.createElement("span",{key:d,onClick:()=>rmSkip(d),title:"Click to remove",
+                  style:{fontSize:11,padding:"3px 8px",background:"#fee2e2",color:"#991b1b",borderRadius:10,cursor:"pointer",fontWeight:600}},d+" \u2715")))))
+        }),
         React.createElement("hr",{style:{border:"none",borderTop:"1px solid #e2e8f0",margin:"16px 0"}}),
         React.createElement("div",{style:{fontSize:13,fontWeight:700,color:"#1e293b",marginBottom:10}},"Work Rules"),
         React.createElement("div",{className:"form-row"},
@@ -216,14 +310,7 @@ function SettingsModal({settings,setSettings,onClose}){
             React.createElement("input",{type:"number",value:local.dispenserRate,onChange:e=>upd("dispenserRate",+e.target.value),style:{width:"100%"},min:5,max:50})),
           React.createElement("div",{className:"form-group"},
             React.createElement("label",{className:"form-label"},"Travel Time Between Sites (min)"),
-            React.createElement("input",{type:"number",value:local.travelTimeMin,onChange:e=>upd("travelTimeMin",+e.target.value),style:{width:"100%"},min:5,max:60}))),
-        React.createElement("hr",{style:{border:"none",borderTop:"1px solid #e2e8f0",margin:"16px 0"}}),
-        React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between"}},
-          React.createElement("div",null,
-            React.createElement("div",{style:{fontSize:13,fontWeight:700,color:"#1e293b"}},"Region-Based Grouping"),
-            React.createElement("div",{style:{fontSize:11,color:"#64748b"}},"Keep crews within regions vs cross-region optimization")),
-          React.createElement("div",{className:"toggle"+(local.regionGrouping?" on":""),onClick:()=>upd("regionGrouping",!local.regionGrouping)},
-            React.createElement("div",{className:"toggle-knob"})))),
+            React.createElement("input",{type:"number",value:local.travelTimeMin,onChange:e=>upd("travelTimeMin",+e.target.value),style:{width:"100%"},min:5,max:60})))),
       React.createElement("div",{className:"modal-footer"},
         React.createElement("button",{onClick:onClose,className:"btn btn-slate"},"Cancel"),
         React.createElement("button",{onClick:save,className:"btn btn-primary"},"Save"))));
@@ -233,7 +320,11 @@ function SettingsModal({settings,setSettings,onClose}){
 /* ═══ LEAFLET MAP ═══ */
 function RouteMap({sites,assignments,nCrews,schedule,onSelect,crewFilter,settings,siteState}){
   const mapRef=useRef(null);const mapInst=useRef(null);const layerRef=useRef(null);const tileRef=useRef(null);
+  const markersRef=useRef({});
   const[basemap,setBasemap]=useState("voyager");
+  const[search,setSearch]=useState("");const[searchOpen,setSearchOpen]=useState(false);const searchRef=useRef(null);
+  const searchResults=useMemo(()=>{if(!search||search.length<1)return[];const q=search.toLowerCase();return sites.filter(s=>s.name.toLowerCase().includes(q)||s.address.toLowerCase().includes(q)||(s.poc&&s.poc.toLowerCase().includes(q))).slice(0,12)},[search,sites]);
+  const flyTo=useCallback((s)=>{setSearch("");setSearchOpen(false);if(mapInst.current){mapInst.current.setView([s.lat,s.lng],16,{animate:true});const mk=markersRef.current[s.id];if(mk)setTimeout(()=>mk.openPopup(),400)}onSelect(s)},[onSelect]);
   const TILES={
     voyager:{url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',attr:'&copy; OSM &copy; CARTO',sub:'abcd',max:20},
     light:{url:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',attr:'&copy; OSM &copy; CARTO',sub:'abcd',max:20},
@@ -256,7 +347,7 @@ function RouteMap({sites,assignments,nCrews,schedule,onSelect,crewFilter,setting
   },[basemap]);
   useEffect(()=>{
     if(!mapInst.current||!layerRef.current)return;
-    layerRef.current.clearLayers();
+    layerRef.current.clearLayers();markersRef.current={};
     sites.forEach(s=>{
       const ci=assignments[s.id];if(crewFilter!=="all"&&ci!==+crewFilter&&ci!=="unassigned")return;
       const col=typeof ci==="number"?COLORS[ci]:"#94a3b8";
@@ -267,7 +358,7 @@ function RouteMap({sites,assignments,nCrews,schedule,onSelect,crewFilter,setting
       const mk=L.marker([s.lat,s.lng],{icon}).addTo(layerRef.current);
       const statusBadge='<span style="display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:'+STATUS_BG[st.status||"Not Started"]+';color:'+STATUS_COLORS[st.status||"Not Started"]+'">'+(st.status||"Not Started")+'</span>';
       mk.bindPopup('<div style="min-width:200px"><strong style="font-size:13px">'+s.name+'</strong><br/><span style="color:#64748b;font-size:11px">'+s.address+'</span><br/><div style="margin:6px 0">'+statusBadge+'</div><div style="display:flex;gap:8px;font-size:12px"><span style="font-weight:700;color:'+col+'">'+(typeof ci==="number"?settings.crewNames[ci]:"Unassigned")+'</span><span style="font-weight:700">'+s.qty+' dispensers</span></div>'+(s.poc?'<div style="margin-top:4px;font-size:11px;color:#64748b">POC: '+s.poc+'</div>':'')+(st.crewNotes?'<div style="margin-top:4px;font-size:11px;padding:3px 6px;background:#eff6ff;border-radius:4px;color:#1e40af">'+st.crewNotes+'</div>':'')+'</div>');
-      mk.on('click',()=>onSelect(s));layerRef.current.addLayer(mk)});
+      mk.on('click',()=>onSelect(s));layerRef.current.addLayer(mk);markersRef.current[s.id]=mk});
     for(let ci=0;ci<nCrews;ci++){
       if(crewFilter!=="all"&&ci!==+crewFilter)continue;
       const cs=sites.filter(s=>assignments[s.id]===ci);
@@ -279,6 +370,22 @@ function RouteMap({sites,assignments,nCrews,schedule,onSelect,crewFilter,setting
   const btn=(k,lbl)=>React.createElement("button",{key:k,onClick:()=>setBasemap(k),style:{padding:"5px 10px",fontSize:11,fontWeight:700,border:"none",borderRadius:4,cursor:"pointer",background:basemap===k?"#1d4ed8":"#fff",color:basemap===k?"#fff":"#334155",boxShadow:"0 1px 2px rgba(0,0,0,0.1)"}},lbl);
   const fit=()=>{if(!mapInst.current||!sites.length)return;try{const b=L.latLngBounds(sites.map(s=>[s.lat,s.lng]));mapInst.current.fitBounds(b,{padding:[40,40],maxZoom:13})}catch(e){}};
   return React.createElement("div",{style:{position:"relative",width:"100%"}},
+    React.createElement("div",{ref:searchRef,style:{position:"absolute",top:10,left:55,zIndex:500,width:280}},
+      React.createElement("div",{style:{position:"relative"}},
+        React.createElement("input",{type:"text",value:search,placeholder:"\uD83D\uDD0D Search sites, addresses, POCs\u2026",
+          onChange:e=>{setSearch(e.target.value);setSearchOpen(true)},
+          onFocus:()=>{if(search)setSearchOpen(true)},
+          style:{width:"100%",padding:"8px 32px 8px 12px",fontSize:12,border:"none",borderRadius:6,boxShadow:"0 2px 8px rgba(0,0,0,0.18)",outline:"none",background:"rgba(255,255,255,0.97)"}}),
+        search&&React.createElement("button",{onClick:()=>{setSearch("");setSearchOpen(false)},
+          style:{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:14,color:"#94a3b8",lineHeight:1}},"\u2715")),
+      searchOpen&&searchResults.length>0&&React.createElement("div",{style:{marginTop:2,background:"#fff",borderRadius:6,boxShadow:"0 4px 16px rgba(0,0,0,0.18)",maxHeight:320,overflowY:"auto"}},
+        searchResults.map(s=>{const ci=assignments[s.id];const col=typeof ci==="number"?COLORS[ci]:"#94a3b8";
+          return React.createElement("div",{key:s.id,onClick:()=>flyTo(s),
+            style:{padding:"8px 12px",cursor:"pointer",borderBottom:"1px solid #f1f5f9",fontSize:11,display:"flex",gap:8,alignItems:"center"}},
+            React.createElement("div",{style:{width:8,height:8,borderRadius:4,background:col,flexShrink:0}}),
+            React.createElement("div",{style:{flex:1,minWidth:0}},
+              React.createElement("div",{style:{fontWeight:700,color:"#1e293b",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},s.name),
+              React.createElement("div",{style:{color:"#64748b",fontSize:10}},s.address+(s.qty?" \u00b7 "+s.qty+" units":""))))}))),
     React.createElement("div",{style:{position:"absolute",top:10,right:10,zIndex:400,display:"flex",gap:4,background:"rgba(255,255,255,0.95)",padding:4,borderRadius:6,boxShadow:"0 2px 8px rgba(0,0,0,0.15)"}},
       btn("voyager","Street"),btn("light","Light"),btn("satellite","Satellite"),btn("hybrid","Hybrid"),
       React.createElement("button",{onClick:fit,style:{padding:"5px 10px",fontSize:11,fontWeight:700,border:"none",borderRadius:4,cursor:"pointer",background:"#f59e0b",color:"#fff",boxShadow:"0 1px 2px rgba(0,0,0,0.1)",marginLeft:4},title:"Fit all sites"},"\u2316 Fit")
@@ -288,7 +395,7 @@ function RouteMap({sites,assignments,nCrews,schedule,onSelect,crewFilter,setting
 }
 
 /* ═══ WEEKLY SCHEDULE ═══ */
-function WeeklySchedule({schedule,nCrews,assignments,setAssignments,sites,settings,siteState}){
+function WeeklySchedule({schedule,nCrews,assignments,setAssignments,sites,settings,setSettings,siteState,setSiteState}){
   const[weekOff,setWeekOff]=useState(0);
   const allDays=useMemo(()=>{
     const days=new Set();Object.values(schedule).forEach(cd=>cd.forEach(d=>days.add(d.date.toDateString())));
@@ -299,7 +406,22 @@ function WeeklySchedule({schedule,nCrews,assignments,setAssignments,sites,settin
   const onDS=(e,id)=>{setDragSite(id);e.dataTransfer.effectAllowed="move"};
   const onDO=e=>{e.preventDefault();e.currentTarget.classList.add("drag-over")};
   const onDL=e=>e.currentTarget.classList.remove("drag-over");
-  const onDR=(e,ci)=>{e.preventDefault();e.currentTarget.classList.remove("drag-over");if(dragSite!=null){setAssignments(p=>({...p,[dragSite]:ci}));setDragSite(null)}};
+  // Drop on crew row (no day): assign to crew, clear any day pin
+  const onDR=(e,ci)=>{e.preventDefault();e.currentTarget.classList.remove("drag-over");
+    if(dragSite!=null){
+      setAssignments(p=>({...p,[dragSite]:ci}));
+      setSiteState&&setSiteState(p=>({...p,[dragSite]:{...p[dragSite],lockedDay:null}}));
+      setDragSite(null)
+    }};
+  // Drop on specific day cell: assign to crew AND pin to that dayIndex
+  const onDRDay=(e,ci,dayIdx)=>{e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove("drag-over");
+    if(dragSite!=null){
+      setAssignments(p=>({...p,[dragSite]:ci}));
+      setSiteState&&setSiteState(p=>({...p,[dragSite]:{...p[dragSite],lockedDay:dayIdx}}));
+      setDragSite(null)
+    }};
+  const unpinSite=(id)=>setSiteState&&setSiteState(p=>({...p,[id]:{...p[id],lockedDay:null}}));
+  const setCrewDays=(ci,val)=>{setSettings(p=>{const co={...(p.crewDayOverride||{})};if(val>0)co[ci]=val;else delete co[ci];return{...p,crewDayOverride:co}})};
 
   return React.createElement("div",null,
     React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
@@ -307,34 +429,63 @@ function WeeklySchedule({schedule,nCrews,assignments,setAssignments,sites,settin
         React.createElement("button",{className:"btn btn-sm btn-slate",onClick:()=>setWeekOff(Math.max(0,weekOff-1)),disabled:weekOff===0},"\u25C0"),
         React.createElement("span",{style:{fontSize:13,fontWeight:700,padding:"0 8px"}},"Week "+(weekOff+1)+" of "+totalWeeks),
         React.createElement("button",{className:"btn btn-sm btn-slate",onClick:()=>setWeekOff(Math.min(totalWeeks-1,weekOff+1)),disabled:weekOff>=totalWeeks-1},"\u25B6")),
-      React.createElement("span",{style:{fontSize:11,color:"#64748b"}},"Drag sites between crews to reassign")),
+      React.createElement("span",{style:{fontSize:11,color:"#64748b"}},"Drag to a crew row = auto-pack \u00b7 Drag to a day cell = pin to that day")),
     React.createElement("div",{style:{display:"grid",gridTemplateColumns:"130px repeat("+(weekDays.length||1)+", 1fr)",background:"#fff",borderRadius:8,border:"1px solid #d1d5db",overflow:"hidden"}},
       React.createElement("div",{style:{padding:10,background:"#0a1628",color:"#94a3b8",fontSize:10,fontWeight:700,borderBottom:"1px solid #1e293b"}},"CREW"),
       weekDays.map(ds=>{const d=new Date(ds);return React.createElement("div",{key:ds,style:{padding:"8px 6px",background:"#0a1628",borderBottom:"1px solid #1e293b",textAlign:"center"}},
         React.createElement("div",{style:{fontSize:10,fontWeight:700,color:"#f59e0b"}},["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]),
         React.createElement("div",{style:{fontSize:15,fontWeight:800,color:"#fff"}},d.getDate()),
         React.createElement("div",{style:{fontSize:10,color:"#94a3b8"}},["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]))}),
-      Array.from({length:nCrews}).map((_,ci)=>[
+      Array.from({length:nCrews}).map((_,ci)=>{
+        const autoDays=(schedule[ci]||[]).length;
+        const overrideDays=+(settings.crewDayOverride&&settings.crewDayOverride[ci])||0;
+        const displayDays=overrideDays||autoDays;
+        return[
         React.createElement("div",{key:ci+"-l",onDragOver:onDO,onDragLeave:onDL,onDrop:e=>onDR(e,ci),
           style:{padding:10,background:CREW_BG[ci],borderBottom:"1px solid #e2e8f0",borderRight:"1px solid #e2e8f0"}},
           React.createElement("div",{style:{fontSize:13,fontWeight:700,color:COLORS[ci]}},settings.crewNames[ci]),
-          React.createElement("div",{style:{fontSize:10,color:"#64748b"}},(schedule[ci]||[]).reduce((s,d)=>s+d.totalQty,0)+" units")),
+          React.createElement("div",{style:{fontSize:10,color:"#64748b"}},(schedule[ci]||[]).reduce((s,d)=>s+d.totalQty,0)+" units"),
+          React.createElement("div",{style:{display:"flex",alignItems:"center",gap:3,marginTop:4}},
+            React.createElement("button",{onClick:()=>setCrewDays(ci,Math.max(1,displayDays-1)),
+              style:{width:20,height:20,padding:0,border:"1px solid #cbd5e1",borderRadius:3,background:"#fff",cursor:"pointer",fontSize:12,lineHeight:"18px",fontWeight:700,color:"#475569"}},"\u2212"),
+            React.createElement("input",{type:"number",min:1,max:99,value:displayDays,
+              onChange:e=>{const v=+e.target.value;if(v>0)setCrewDays(ci,v)},
+              style:{width:36,height:20,textAlign:"center",fontSize:11,fontWeight:700,border:"1px solid #cbd5e1",borderRadius:3,padding:0,color:overrideDays?"#d97706":"#475569",background:overrideDays?"#fffbeb":"#fff"}}),
+            React.createElement("button",{onClick:()=>setCrewDays(ci,displayDays+1),
+              style:{width:20,height:20,padding:0,border:"1px solid #cbd5e1",borderRadius:3,background:"#fff",cursor:"pointer",fontSize:12,lineHeight:"18px",fontWeight:700,color:"#475569"}},"+"),
+            React.createElement("span",{style:{fontSize:9,color:overrideDays?"#d97706":"#64748b",fontWeight:600,marginLeft:2}},overrideDays?"days \u270E":"days"),
+            overrideDays&&React.createElement("button",{onClick:()=>setCrewDays(ci,0),title:"Reset to auto",
+              style:{fontSize:9,color:"#94a3b8",background:"none",border:"none",cursor:"pointer",padding:"0 2px"}},"\u21BA"))),
         weekDays.map(ds=>{
           const dayData=(schedule[ci]||[]).find(d=>d.date.toDateString()===ds);
-          return React.createElement("div",{key:ci+"-"+ds,onDragOver:onDO,onDragLeave:onDL,onDrop:e=>onDR(e,ci),
+          const dayIdx=dayData?dayData.dayIndex:null;
+          return React.createElement("div",{key:ci+"-"+ds,onDragOver:onDO,onDragLeave:onDL,
+            onDrop:e=>dayIdx!=null?onDRDay(e,ci,dayIdx):onDR(e,ci),
             style:{padding:4,borderBottom:"1px solid #e2e8f0",borderRight:"1px solid #f1f5f9",background:dayData?"#fff":"#fafafa",minHeight:80,fontSize:10}},
             dayData&&dayData.sites.map(s=>{
               const st=siteState[s.id]||{};
-              return React.createElement("div",{key:s.id,className:"site-card",draggable:true,onDragStart:e=>onDS(e,s.id),
-                style:{padding:"3px 5px",marginBottom:2,borderRadius:3,background:CREW_BG[ci],borderLeft:"3px solid "+COLORS[ci]}},
-                React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
+              const pinned=typeof st.lockedDay==="number"&&st.lockedDay>=0;
+              const span=+(st.daySpan)||1;const spanDay=s._spanDay;const spanTotal=s._spanTotal||1;
+              const isMultiDay=spanTotal>1;
+              return React.createElement("div",{key:s.id+"-"+(spanDay||0),className:"site-card",draggable:!isMultiDay||spanDay===0,
+                onDragStart:e=>{if(!isMultiDay||spanDay===0)onDS(e,s.id)},
+                title:isMultiDay?"Day "+(spanDay+1)+" of "+spanTotal+" \u2014 click to select":pinned?"Pinned to Day "+(st.lockedDay+1)+" \u2014 double-click to unpin":"Drag to a different day to pin",
+                onDoubleClick:()=>pinned&&!isMultiDay&&unpinSite(s.id),
+                style:{padding:"3px 5px",marginBottom:2,borderRadius:3,
+                  background:isMultiDay?"linear-gradient(90deg,"+CREW_BG[ci]+",rgba(245,158,11,0.08))":CREW_BG[ci],
+                  borderLeft:"3px solid "+(isMultiDay?"#d97706":COLORS[ci]),
+                  boxShadow:pinned?"0 0 0 1px #f59e0b inset":"none",
+                  opacity:isMultiDay&&spanDay>0?0.75:1}},
+                React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",gap:3}},
+                  isMultiDay&&React.createElement("span",{style:{fontSize:8,fontWeight:700,color:"#fff",background:"#d97706",borderRadius:3,padding:"1px 4px",lineHeight:"12px",flexShrink:0}},(spanDay+1)+"/"+spanTotal),
+                  !isMultiDay&&pinned&&React.createElement("span",{style:{color:"#f59e0b",fontSize:9}},"\ud83d\udccc"),
                   React.createElement("span",{style:{fontWeight:600,color:"#1e293b",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}},s.name),
                   st.priority==="Critical"&&React.createElement("span",{style:{color:"#dc2626"}},"\u26A0"),
                   st.priority==="High"&&React.createElement("span",{style:{color:"#f59e0b"}},"\u2605")),
-                React.createElement("div",{style:{color:"#64748b"}},s.qty+" units"))}),
-            dayData&&React.createElement("div",{style:{fontSize:9,color:COLORS[ci],fontWeight:700,marginTop:2,textAlign:"right"}},dayData.totalQty+" / "+dayData.totalHrs+"h"))
+                React.createElement("div",{style:{color:"#64748b"}},s.qty+" units"+(isMultiDay&&spanDay===0?" \u00b7 "+spanTotal+"d":"")))}).filter(Boolean),
+            dayData&&React.createElement("div",{style:{fontSize:9,color:COLORS[ci],fontWeight:700,marginTop:2,textAlign:"right"}},"Day "+(dayData.dayIndex+1)+" \u00b7 "+dayData.totalQty+" / "+dayData.totalHrs+"h"))
         })
-      ]).flat()),
+      ]}).flat()),
     // Unassigned tray
     React.createElement("div",{style:{marginTop:12,background:"#fff",border:"1px solid #d1d5db",borderRadius:8,padding:14}},
       React.createElement("div",{style:{fontSize:12,fontWeight:700,color:"#64748b",marginBottom:8}},"UNASSIGNED (drag to a crew row above)"),
@@ -684,7 +835,7 @@ function PrintView({schedule,nCrews,settings,siteState,sites,assignments}){
 }
 
 /* ═══ DETAIL PANEL ═══ */
-function DetailPanel({site:f,assignments,setAssignments,nCrews,settings,siteState,setSiteState,onClose}){
+function DetailPanel({site:f,assignments,setAssignments,nCrews,settings,siteState,setSiteState,onClose,schedule}){
   if(!f)return null;
   const ci=assignments[f.id];const st=siteState[f.id]||{};
   const updSite=(k,v)=>setSiteState(p=>({...p,[f.id]:{...p[f.id],[k]:v}}));
@@ -715,10 +866,36 @@ function DetailPanel({site:f,assignments,setAssignments,nCrews,settings,siteStat
         React.createElement("select",{value:st.priority||"Normal",onChange:e=>updSite("priority",e.target.value),style:{width:"100%"}},
           PRIORITY_OPTS.map(o=>React.createElement("option",{key:o,value:o},o)))),
       React.createElement("div",{className:"form-group"},
-        React.createElement("label",{className:"form-label"},"Lock to Crew #"),
-        React.createElement("select",{value:st.lockedCrew!=null?st.lockedCrew:"none",onChange:e=>updSite("lockedCrew",e.target.value==="none"?null:+e.target.value),style:{width:"100%"}},
-          React.createElement("option",{value:"none"},"Auto-assign"),
-          Array.from({length:nCrews}).map((_,i)=>React.createElement("option",{key:i,value:i},"Lock to "+settings.crewNames[i]))))),
+        React.createElement("label",{className:"form-label"},"Scheduled Day"),
+        (function(){
+          const crewDays=(typeof ci==="number"&&schedule&&schedule[ci])?schedule[ci].length:0;
+          const maxDay=Math.max(crewDays,(st.lockedDay||0)+1,10);
+          const cur=typeof st.lockedDay==="number"&&st.lockedDay>=0?st.lockedDay:"auto";
+          return React.createElement("select",{value:cur,
+            onChange:e=>updSite("lockedDay",e.target.value==="auto"?null:+e.target.value),
+            disabled:typeof ci!=="number",
+            style:{width:"100%"}},
+            React.createElement("option",{value:"auto"},"Auto \u2014 let packer decide"),
+            Array.from({length:maxDay}).map((_,i)=>React.createElement("option",{key:i,value:i},"Pin to Day "+(i+1))))
+        })())),
+    React.createElement("div",{className:"form-row",style:{marginBottom:14}},
+      React.createElement("div",{className:"form-group"},
+        React.createElement("label",{className:"form-label"},"Duration (days)"),
+        React.createElement("div",{style:{display:"flex",alignItems:"center",gap:4}},
+          React.createElement("button",{onClick:()=>{const v=Math.max(1,(+(st.daySpan)||1)-1);updSite("daySpan",v===1?undefined:v);if(v>1&&(typeof st.lockedDay!=="number"||st.lockedDay<0))updSite("lockedDay",0)},
+            style:{width:28,height:28,border:"1px solid #cbd5e1",borderRadius:4,background:"#fff",cursor:"pointer",fontSize:14,fontWeight:700,color:"#475569"}},"\u2212"),
+          React.createElement("input",{type:"number",min:1,max:30,value:+(st.daySpan)||1,
+            onChange:e=>{const v=Math.max(1,+e.target.value||1);updSite("daySpan",v===1?undefined:v);if(v>1&&(typeof st.lockedDay!=="number"||st.lockedDay<0))updSite("lockedDay",0)},
+            style:{width:44,height:28,textAlign:"center",fontSize:13,fontWeight:700,border:"1px solid #cbd5e1",borderRadius:4,padding:0,
+              color:(+(st.daySpan)||1)>1?"#d97706":"#475569",background:(+(st.daySpan)||1)>1?"#fffbeb":"#fff"}}),
+          React.createElement("button",{onClick:()=>{const v=(+(st.daySpan)||1)+1;updSite("daySpan",v);if(typeof st.lockedDay!=="number"||st.lockedDay<0)updSite("lockedDay",0)},
+            style:{width:28,height:28,border:"1px solid #cbd5e1",borderRadius:4,background:"#fff",cursor:"pointer",fontSize:14,fontWeight:700,color:"#475569"}},"+"),
+          (+(st.daySpan)||1)>1&&React.createElement("span",{style:{fontSize:10,color:"#d97706",fontWeight:600,marginLeft:4}},
+            "Days "+(st.lockedDay+1)+"\u2013"+((st.lockedDay||0)+(+(st.daySpan)||1))))),
+      React.createElement("div",{className:"form-group"},
+        React.createElement("label",{className:"form-label"},"Est. Hours / Day"),
+        React.createElement("div",{style:{fontSize:18,fontWeight:800,color:"#475569",paddingTop:2}},
+          (Math.round(estHrs(f)*10/Math.max(1,+(st.daySpan)||1))/10)+"h"))),
     React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}},
       React.createElement("div",{style:{background:"#f8fafc",borderRadius:6,padding:10}},
         React.createElement("div",{style:{fontSize:10,color:"#94a3b8"}},"DISPENSERS"),
@@ -950,18 +1127,18 @@ function App(){
         React.createElement("div",{style:{fontSize:13,color:"#94a3b8",fontWeight:700}},"Unassigned"),
         React.createElement("div",{style:{fontSize:22,fontWeight:800,margin:"3px 0"}},fmt(totalQty-assignedQty)),
         React.createElement("div",{style:{fontSize:10,color:"#64748b"}},INIT_SITES.filter(s=>assignments[s.id]==="unassigned"||assignments[s.id]===undefined).length+" sites"))),
-    // ─── CONTENT ───
+    // \u2500\u2500\u2500 CONTENT \u2500\u2500\u2500
     React.createElement("div",{style:{padding:"0 24px 24px"}},
       tab==="Map & Routes"&&React.createElement(RouteMap,{sites:INIT_SITES,assignments,nCrews,schedule,onSelect:setSelected,crewFilter,settings,siteState}),
       tab==="All Sites"&&React.createElement(AllSites,{sites:INIT_SITES,assignments,nCrews,settings,siteState,onSelect:setSelected}),
-      tab==="Weekly Schedule"&&React.createElement(WeeklySchedule,{schedule,nCrews,assignments,setAssignments,sites:INIT_SITES,settings,siteState}),
+      tab==="Weekly Schedule"&&React.createElement(WeeklySchedule,{schedule,nCrews,assignments,setAssignments,sites:INIT_SITES,settings,setSettings,siteState,setSiteState}),
       tab==="Route Details"&&React.createElement(RouteDetail,{schedule,nCrews,settings,siteState}),
       tab==="Timeline"&&React.createElement(ProjectTimeline,{schedule,nCrews,settings,ganttOverrides,setGanttOverrides,sites:INIT_SITES,assignments}),
       tab==="Status Tracker"&&React.createElement(StatusTracker,{sites:INIT_SITES,siteState,setSiteState,assignments,nCrews,settings}),
       tab==="Print / Export"&&React.createElement(PrintView,{schedule,nCrews,settings,siteState,sites:INIT_SITES,assignments})),
-    // ─── DETAIL PANEL ───
-    selected&&React.createElement(DetailPanel,{site:selected,assignments,setAssignments,nCrews,settings,siteState,setSiteState,onClose:()=>setSelected(null)}),
-    // ─── SETTINGS MODAL ───
+    // \u2500\u2500\u2500 DETAIL PANEL \u2500\u2500\u2500
+    selected&&React.createElement(DetailPanel,{site:selected,assignments,setAssignments,nCrews,settings,siteState,setSiteState,schedule,onClose:()=>setSelected(null)}),
+    // \u2500\u2500\u2500 SETTINGS MODAL \u2500\u2500\u2500
     showSettings&&React.createElement(SettingsModal,{settings,setSettings,onClose:()=>setShowSettings(false)}));
 }
 
